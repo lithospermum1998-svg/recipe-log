@@ -1,131 +1,138 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#000000" />
 <title>RECIPE LOG</title>
-
 <style>
 :root {
   --bg: #000000;
   --surface-1: #1c1c1e;
   --text-main: #ffffff;
-  --accent: #ff9500; /* レシピっぽくオレンジ */
+  --text-sub: #8e8e93;
+  --accent: #ff9500;
   --line: rgba(255,255,255,0.07);
 }
-
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text-main);
   font-family: -apple-system, sans-serif;
-  padding: env(safe-area-inset-top) 12px 100px;
+  padding: calc(8px + env(safe-area-inset-top)) 12px 100px;
 }
-
 .container { max-width: 430px; margin: 0 auto; }
-
-.header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 24px 0 16px;
-}
-
+.header-row { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; }
 .section-title { font-size: 20px; font-weight: 800; }
-
-.input-area {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
+.input-area { display: flex; gap: 8px; margin-bottom: 24px; }
 .inline-input {
-  flex: 1;
-  background: var(--surface-1);
-  border: 1px solid var(--line);
-  color: #fff;
-  border-radius: 10px;
-  padding: 12px;
-  font-size: 16px;
+  flex: 1; background: var(--surface-1); border: 1px solid var(--line);
+  color: #fff; border-radius: 12px; padding: 14px; font-size: 16px; outline: none;
 }
-
 .add-btn {
-  background: var(--accent);
-  border: none;
-  color: #fff;
-  font-weight: bold;
-  border-radius: 10px;
-  padding: 0 16px;
+  background: var(--accent); border: none; color: #fff;
+  font-weight: 800; border-radius: 12px; padding: 0 20px;
 }
-
 .list-container { display: grid; gap: 10px; }
-
 .recipe-card {
-  background: var(--surface-1);
-  border-radius: 15px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  background: var(--surface-1); border-radius: 16px; padding: 18px;
+  border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
-
 .delete-btn {
-  color: #ff453a;
-  font-size: 12px;
-  font-weight: bold;
-  border: 1px solid #ff453a;
-  padding: 4px 8px;
-  border-radius: 6px;
+  color: #ff453a; font-size: 11px; font-weight: 800;
+  border: 1px solid rgba(255,69,58,0.3); padding: 5px 10px; border-radius: 8px;
 }
+.loading { text-align: center; color: var(--text-sub); margin-top: 50px; font-weight: 600; }
 </style>
 </head>
-
 <body>
   <div class="container">
     <div class="header-row">
       <div class="section-title">RECIPE LOG</div>
     </div>
-
     <div class="input-area">
-      <input id="newTitle" class="inline-input" placeholder="料理名を入力...">
-      <button class="add-btn" onclick="addRecipe()">追加</button>
+      <input id="newTitle" class="inline-input" placeholder="料理名を追加...">
+      <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
     </div>
-    
-    <div id="recipeList" class="list-container"></div>
+    <div id="recipeList" class="list-container">
+      <div class="loading">読み込み中...</div>
+    </div>
   </div>
 
 <script>
-let recipes = ["生姜焼き", "カルボナーラ", "本鮪のあら煮", "マカロン", "唐揚げ", "チーズケーキ", "ハヤシライス", "エビマヨ", "汁なし担々麺", "味噌つけ麺"];
+// --- 設定：ここに取得したGASのURLを貼り付けてください ---
+const GAS_URL = "ここにコピーしたウェブアプリURLを貼り付け";
 
+let recipes = [];
+
+// データの読み込み
+async function fetchRecipes() {
+  try {
+    const res = await fetch(GAS_URL);
+    recipes = await res.json();
+    render();
+  } catch (e) {
+    document.getElementById("recipeList").innerHTML = '<div class="loading">データがありません</div>';
+  }
+}
+
+// 画面への描画
 function render() {
   const list = document.getElementById("recipeList");
+  if (recipes.length === 0) {
+    list.innerHTML = '<div class="loading">レシピが登録されていません</div>';
+    return;
+  }
   list.innerHTML = recipes.map((name, index) => `
     <div class="recipe-card">
-      <div style="font-weight:bold;">${name}</div>
+      <div style="font-size:16px; font-weight:700;">${name}</div>
       <div class="delete-btn" onclick="deleteRecipe(${index})">削除</div>
     </div>
   `).join("");
 }
 
-function addRecipe() {
+// レシピの追加
+async function addRecipe() {
   const input = document.getElementById("newTitle");
-  if(input.value) {
-    recipes.unshift(input.value);
-    input.value = "";
-    render();
-  }
+  const btn = document.getElementById("addBtn");
+  const name = input.value.trim();
+  if(!name) return;
+
+  btn.disabled = true;
+  btn.innerText = "⏳";
+
+  // 先に画面に反映（ポジティブ更新）
+  recipes.unshift(name);
+  render();
+  input.value = "";
+
+  // GASへ保存
+  await fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({ method: "add", name: name })
+  });
+  
+  btn.disabled = false;
+  btn.innerText = "追加";
 }
 
-function deleteRecipe(index) {
-  if(confirm("削除しますか？")) {
-    recipes.splice(index, 1);
-    render();
-  }
+// レシピの削除
+async function deleteRecipe(index) {
+  const name = recipes[index];
+  if(!confirm(`「${name}」を削除しますか？`)) return;
+
+  recipes.splice(index, 1);
+  render();
+
+  await fetch(https://script.google.com/macros/s/AKfycby14T5t663H2wc_x7Ketkk7B3Mq3yKlFMoS5kHrEkN4dvrn6ZPRW90PNhv3l-_8kHk7uQ/exec, {
+    method: "POST",
+    body: JSON.stringify({ method: "delete", name: name })
+  });
 }
 
-render();
+// 起動時に実行
+fetchRecipes();
 </script>
 </body>
 </html>
