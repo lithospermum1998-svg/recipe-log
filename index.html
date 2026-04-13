@@ -1,57 +1,131 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="ja">
 <head>
-    <style>
-        /* 基本のデザインはMONEY LOGから継承 */
-        /* レシピ特有の色（オレンジやグリーン）をアクセントにしても◎ */
-        :root {
-            --accent: #ff9500; /* レシピっぽくオレンジ */
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<title>RECIPE LOG</title>
+
+<style>
+:root {
+  --bg: #000000;
+  --surface-1: #1c1c1e;
+  --text-main: #ffffff;
+  --accent: #ff9500; /* レシピっぽくオレンジ */
+  --line: rgba(255,255,255,0.07);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: -apple-system, sans-serif;
+  padding: env(safe-area-inset-top) 12px 100px;
+}
+
+.container { max-width: 430px; margin: 0 auto; }
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 24px 0 16px;
+}
+
+.section-title { font-size: 20px; font-weight: 800; }
+
+.input-area {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.inline-input {
+  flex: 1;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  color: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 16px;
+}
+
+.add-btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 0 16px;
+}
+
+.list-container { display: grid; gap: 10px; }
+
+.recipe-card {
+  background: var(--surface-1);
+  border-radius: 15px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delete-btn {
+  color: #ff453a;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid #ff453a;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header-row">
-            <div class="section-title">RECIPE LOG</div>
-            <input id="newRecipeTitle" class="inline-input" style="max-width:200px" placeholder="新しい料理名">
-            <button class="update-btn" style="height:30px" onclick="addRecipe()">追加</button>
-        </div>
-        
-        <div id="recipeList" class="list-container">
-            </div>
+  <div class="container">
+    <div class="header-row">
+      <div class="section-title">RECIPE LOG</div>
     </div>
 
+    <div class="input-area">
+      <input id="newTitle" class="inline-input" placeholder="料理名を入力...">
+      <button class="add-btn" onclick="addRecipe()">追加</button>
+    </div>
+    
+    <div id="recipeList" class="list-container"></div>
+  </div>
+
 <script>
-    // 10品の初期データ
-    let recipes = ["生姜焼き", "カルボナーラ", "本鮪のあら煮", "マカロン", "唐揚げ", "チーズケーキ", "ハヤシライス", "エビマヨ", "汁なし担々麺", "味噌つけ麺"];
+let recipes = ["生姜焼き", "カルボナーラ", "本鮪のあら煮", "マカロン", "唐揚げ", "チーズケーキ", "ハヤシライス", "エビマヨ", "汁なし担々麺", "味噌つけ麺"];
 
-    function render() {
-        const list = document.getElementById("stockList"); // MONEY LOGのID流用
-        list.innerHTML = recipes.map((name, index) => `
-            <section class="stock-card" style="--brand:var(--accent)">
-                <div class="card-top">
-                    <div class="card-label">${name}</div>
-                    <div class="account-badge" onclick="deleteRecipe(${index})">削除</div>
-                </div>
-            </section>
-        `).join("");
-    }
+function render() {
+  const list = document.getElementById("recipeList");
+  list.innerHTML = recipes.map((name, index) => `
+    <div class="recipe-card">
+      <div style="font-weight:bold;">${name}</div>
+      <div class="delete-btn" onclick="deleteRecipe(${index})">削除</div>
+    </div>
+  `).join("");
+}
 
-    function addRecipe() {
-        const input = document.getElementById("newRecipeTitle");
-        if(input.value) {
-            recipes.unshift(input.value); // 先頭に追加
-            input.value = "";
-            render();
-        }
-    }
-
-    function deleteRecipe(index) {
-        recipes.splice(index, 1);
-        render();
-    }
-
+function addRecipe() {
+  const input = document.getElementById("newTitle");
+  if(input.value) {
+    recipes.unshift(input.value);
+    input.value = "";
     render();
+  }
+}
+
+function deleteRecipe(index) {
+  if(confirm("削除しますか？")) {
+    recipes.splice(index, 1);
+    render();
+  }
+}
+
+render();
 </script>
 </body>
 </html>
