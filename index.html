@@ -9,45 +9,75 @@
 :root {
   --bg: #000000;
   --surface-1: #1c1c1e;
+  --surface-2: #2c2c2e;
   --text-main: #ffffff;
   --text-sub: #8e8e93;
   --accent: #ff9500;
-  --line: rgba(255,255,255,0.07);
+  --line: rgba(255,255,255,0.1);
 }
+* { box-sizing: border-box; }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text-main);
   font-family: -apple-system, sans-serif;
-  padding: calc(8px + env(safe-area-inset-top)) 12px 100px;
+  padding: calc(8px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom));
+  line-height: 1.4;
 }
 .container { max-width: 430px; margin: 0 auto; }
+
+/* Header & Typography */
 .header-row { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; }
 .section-title { font-size: 20px; font-weight: 800; }
+
+/* Input Styles */
 .input-area { display: flex; gap: 8px; margin-bottom: 24px; }
 .inline-input {
   flex: 1; background: var(--surface-1); border: 1px solid var(--line);
   color: #fff; border-radius: 12px; padding: 14px; font-size: 16px; outline: none;
 }
+.inline-input:focus { border-color: var(--accent); }
+
+/* Button Styles */
 .add-btn {
   background: var(--accent); border: none; color: #fff;
-  font-weight: 800; border-radius: 12px; padding: 0 20px;
+  font-weight: 800; border-radius: 12px; padding: 0 20px; cursor: pointer;
 }
+.add-btn:disabled { opacity: 0.5; }
+
+/* List Styles */
 .list-container { display: grid; gap: 10px; }
 .recipe-card {
   background: var(--surface-1); border-radius: 16px; padding: 18px;
   border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
+.recipe-name { flex: 1; font-size: 16px; font-weight: 700; cursor: pointer; }
+
 .delete-btn {
   color: #ff453a; font-size: 11px; font-weight: 800;
   border: 1px solid rgba(255,69,58,0.3); padding: 5px 10px; border-radius: 8px;
 }
+
+/* Detail Page Styles */
+#detailPage { display: none; }
+.editor-textarea {
+  width: 100%; min-height: 65vh; background: var(--surface-1);
+  border: 1px solid var(--line); color: #fff; border-radius: 16px;
+  padding: 16px; font-size: 16px; line-height: 1.6; resize: none; outline: none;
+}
+.back-btn {
+  color: var(--text-main); font-size: 14px; font-weight: 700;
+  background: var(--surface-2); border: none; padding: 8px 16px; border-radius: 10px;
+}
+
 .loading { text-align: center; color: var(--text-sub); margin-top: 50px; font-weight: 600; }
 </style>
 </head>
 <body>
-  <div class="container">
+
+<div class="container">
+  <div id="mainPage">
     <div class="header-row">
       <div class="section-title">RECIPE LOG</div>
     </div>
@@ -60,39 +90,84 @@ body {
     </div>
   </div>
 
+  <div id="detailPage">
+    <div class="header-row">
+      <button class="back-btn" onclick="backToList()">← 戻る</button>
+      <div id="detailTitle" class="section-title"></div>
+      <button id="saveBtn" class="add-btn" style="height:36px; font-size:13px;" onclick="saveRecipe()">保存</button>
+    </div>
+    <textarea id="recipeEditor" class="editor-textarea" placeholder="材料や作り方をメモ..."></textarea>
+  </div>
+</div>
+
 <script>
-// --- 設定：ここに取得したGASのURLを貼り付けてください ---
-const GAS_URL = "https://script.google.com/macros/s/AKfycby14T5t663H2wc_x7Ketkk7B3Mq3yKlFMoS5kHrEkN4dvrn6ZPRW90PNhv3l-_8kHk7uQ/exec";
+// --- 重要：GASの「ウェブアプリURL」をここに貼り付け ---
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwyYoMVIIGoHyYGAhd3bgSn6AoyrNy51vqU_AEVRkYlb_G7iep5KrQJ9-YjxD24bYBFQQ/exec";
 
-let recipes = [];
+let recipes = []; // [[名前, レシピ], [名前, レシピ]] の構造
+let currentEditingName = "";
 
-// データの読み込み
+// 1. データの読み込み
 async function fetchRecipes() {
   try {
     const res = await fetch(GAS_URL);
     recipes = await res.json();
     render();
   } catch (e) {
-    document.getElementById("recipeList").innerHTML = '<div class="loading">データがありません</div>';
+    document.getElementById("recipeList").innerHTML = '<div class="loading">接続エラー</div>';
   }
 }
 
-// 画面への描画
+// 2. 画面描画
 function render() {
   const list = document.getElementById("recipeList");
   if (recipes.length === 0) {
-    list.innerHTML = '<div class="loading">レシピが登録されていません</div>';
+    list.innerHTML = '<div class="loading">レシピがありません</div>';
     return;
   }
-  list.innerHTML = recipes.map((name, index) => `
+  list.innerHTML = recipes.map((item, index) => `
     <div class="recipe-card">
-      <div style="font-size:16px; font-weight:700;">${name}</div>
+      <div class="recipe-name" onclick="showDetail(${index})">${item[0]}</div>
       <div class="delete-btn" onclick="deleteRecipe(${index})">削除</div>
     </div>
   `).join("");
 }
 
-// レシピの追加
+// 3. 詳細画面へ遷移
+function showDetail(index) {
+  const item = recipes[index];
+  currentEditingName = item[0];
+  
+  document.getElementById("mainPage").style.display = "none";
+  document.getElementById("detailPage").style.display = "block";
+  
+  document.getElementById("detailTitle").innerText = currentEditingName;
+  document.getElementById("recipeEditor").value = item[1] || "";
+  window.scrollTo(0, 0);
+}
+
+// 4. レシピ内容の保存
+async function saveRecipe() {
+  const btn = document.getElementById("saveBtn");
+  const content = document.getElementById("recipeEditor").value;
+  
+  btn.disabled = true;
+  btn.innerText = "⏳";
+
+  await fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({ method: "update", name: currentEditingName, recipe: content })
+  });
+
+  // ローカルデータを更新
+  const target = recipes.find(r => r[0] === currentEditingName);
+  if(target) target[1] = content;
+
+  btn.disabled = false;
+  btn.innerText = "保存";
+}
+
+// 5. 新規レシピ追加
 async function addRecipe() {
   const input = document.getElementById("newTitle");
   const btn = document.getElementById("addBtn");
@@ -100,26 +175,22 @@ async function addRecipe() {
   if(!name) return;
 
   btn.disabled = true;
-  btn.innerText = "⏳";
-
-  // 先に画面に反映（ポジティブ更新）
-  recipes.unshift(name);
+  recipes.unshift([name, ""]);
   render();
   input.value = "";
 
-  // GASへ保存
   await fetch(GAS_URL, {
     method: "POST",
     body: JSON.stringify({ method: "add", name: name })
   });
   
   btn.disabled = false;
-  btn.innerText = "追加";
+  fetchRecipes(); // 念のため再取得
 }
 
-// レシピの削除
+// 6. 削除
 async function deleteRecipe(index) {
-  const name = recipes[index];
+  const name = recipes[index][0];
   if(!confirm(`「${name}」を削除しますか？`)) return;
 
   recipes.splice(index, 1);
@@ -131,8 +202,15 @@ async function deleteRecipe(index) {
   });
 }
 
-// 起動時に実行
+function backToList() {
+  document.getElementById("mainPage").style.display = "block";
+  document.getElementById("detailPage").style.display = "none";
+  render();
+}
+
+// 起動
 fetchRecipes();
 </script>
+
 </body>
 </html>
