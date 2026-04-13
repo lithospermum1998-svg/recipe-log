@@ -62,7 +62,7 @@ body {
 
 <script>
 // --- 設定：ここに取得したGASのURLを貼り付けてください ---
-const GAS_URL = "ここにコピーしたウェブアプリURLを貼り付け";
+const GAS_URL = "https://script.google.com/macros/s/AKfycby14T5t663H2wc_x7Ketkk7B3Mq3yKlFMoS5kHrEkN4dvrn6ZPRW90PNhv3l-_8kHk7uQ/exec";
 
 let recipes = [];
 
@@ -125,7 +125,7 @@ async function deleteRecipe(index) {
   recipes.splice(index, 1);
   render();
 
-  await fetch(https://script.google.com/macros/s/AKfycby14T5t663H2wc_x7Ketkk7B3Mq3yKlFMoS5kHrEkN4dvrn6ZPRW90PNhv3l-_8kHk7uQ/exec, {
+  await fetch(GAS_URL, {
     method: "POST",
     body: JSON.stringify({ method: "delete", name: name })
   });
