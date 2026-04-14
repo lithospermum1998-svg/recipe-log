@@ -24,17 +24,13 @@ body {
 .combo-area { position: sticky; top: calc(8px + env(safe-area-inset-top)); z-index: 100; background: var(--bg); padding-bottom: 16px; }
 .input-group { display: flex; gap: 8px; }
 .combo-input { flex: 1; background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: 16px; outline: none; }
-
-/* AIボタン */
 .ai-btn { background: var(--ai-purple); border: none; color: #fff; font-size: 18px; border-radius: 12px; padding: 0 14px; display: block; cursor: pointer; }
 .add-btn { background: var(--accent); border: none; color: #fff; font-weight: 800; border-radius: 12px; padding: 0 16px; display: none; }
-
 .recipe-item-wrapper { position: relative; margin-bottom: 10px; background-color: var(--danger); border-radius: 16px; overflow: hidden; }
 .delete-action { position: absolute; right: 0; top: 0; bottom: 0; width: 80px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 800; }
 .recipe-card { position: relative; z-index: 2; background: var(--surface-1); padding: 16px; display: flex; flex-direction: column; transition: transform 0.2s ease-out; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 .tag-badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: #e5e5ea; color: var(--text-sub); margin-bottom: 6px; width: fit-content; }
 .recipe-name { font-size: 17px; font-weight: 700; cursor: pointer; }
-
 #detailPage { display: none; }
 .category-select { width: 100%; background: var(--surface-2); border: none; padding: 12px; border-radius: 12px; margin-bottom: 12px; font-weight: 700; }
 .editor-textarea { width: 100%; min-height: 60vh; background: var(--surface-1); border: 1px solid var(--line); border-radius: 16px; padding: 16px; font-size: 17px; line-height: 1.6; resize: none; outline: none; }
@@ -55,7 +51,6 @@ body {
     </div>
     <div id="recipeList"><div class="loading">読み込み中...</div></div>
   </div>
-
   <div id="detailPage">
     <div class="header-row">
       <button class="back-btn" onclick="backToList()">← 戻る</button>
@@ -71,9 +66,8 @@ body {
     <textarea id="recipeEditor" class="editor-textarea" placeholder="作り方をメモ..."></textarea>
   </div>
 </div>
-
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxcAVjbYSqts56iCadkZHRDyFjENqVsXc-JzCE5ugwrhgOPM3GwnGVU1M9hpO4ynZTV_Q/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzzTb1-I7s55TNkD0zC3UiwgYQxWWUSKzwn0doXRSBwuhASJgz6PfiG4RB1udTEbfrw5w/exec";
 let recipes = [];
 let currentEditingName = "";
 let startX = 0;
@@ -116,6 +110,8 @@ async function askAiRecipe() {
       body: JSON.stringify({ method: "ai_suggest", ingredients: text })
     });
     const result = await res.text();
+    if(result.startsWith("エラー")) throw new Error(result);
+
     const lines = result.split('\n');
     const aiTitle = lines[0] || text;
     const aiContent = lines.slice(1).join('\n').trim();
@@ -127,7 +123,7 @@ async function askAiRecipe() {
     document.getElementById("recipeEditor").value = aiContent;
     document.getElementById("categoryEditor").value = "未設定";
     input.value = "";
-  } catch (e) { alert("AIエラー"); }
+  } catch (e) { alert("AIエラー: " + e.message); }
   finally { btn.disabled = false; btn.innerText = original; }
 }
 
@@ -159,6 +155,7 @@ function showDetail(index) {
   document.getElementById("detailTitle").innerText = currentEditingName;
   document.getElementById("recipeEditor").value = item[1] || "";
   document.getElementById("categoryEditor").value = item[2] || "未設定";
+  window.scrollTo(0, 0);
 }
 
 async function saveRecipe() {
