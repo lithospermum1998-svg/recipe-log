@@ -4,57 +4,45 @@
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>RECIPE LOG</title>
 <style>
-:root { --bg: #f2f2f7; --surface: #ffffff; --accent: #ff9500; --ai: #6200ee; --danger: #ff3b30; --text: #1c1c1e; }
+:root { --bg: #f2f2f7; --surface: #ffffff; --accent: #ff9500; --danger: #ff3b30; --text: #1c1c1e; }
 * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
 body { margin: 0; background: var(--bg); color: var(--text); padding: env(safe-area-inset-top) 12px 100px; }
 .container { max-width: 430px; margin: 0 auto; }
 .header { font-size: 22px; font-weight: 800; margin: 24px 0; }
 .input-row { position: sticky; top: 10px; z-index: 10; display: flex; gap: 8px; background: var(--bg); padding-bottom: 16px; }
 input { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-size: 16px; outline: none; }
-button { border: none; border-radius: 12px; color: white; font-weight: 800; cursor: pointer; }
-.btn-ai { background: var(--ai); padding: 0 16px; font-size: 18px; }
-.btn-add { background: var(--accent); padding: 0 16px; display: none; }
+button { border: none; border-radius: 12px; color: white; font-weight: 800; cursor: pointer; padding: 0 16px; }
 .recipe-item { position: relative; background: var(--danger); border-radius: 16px; overflow: hidden; margin-bottom: 10px; }
 .recipe-card { position: relative; z-index: 2; background: var(--surface); padding: 16px; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 .del-label { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: white; font-weight: 800; font-size: 14px; }
 #detailPage { display: none; }
 textarea { width: 100%; height: 60vh; border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); padding: 16px; font-size: 16px; resize: none; outline: none; }
-.tag { font-size: 10px; font-weight: 800; background: #e5e5ea; padding: 2px 8px; border-radius: 6px; margin-bottom: 8px; display: inline-block; }
 </style>
 </head>
 <body>
 <div class="container" id="mainPage">
   <div class="header">RECIPE LOG</div>
   <div class="input-row">
-    <input type="text" id="combo" placeholder="検索・追加・AI相談" oninput="checkInput()">
-    <button id="aiBtn" class="btn-ai" onclick="goAI()">✨</button>
-    <button id="addBtn" class="btn-add" onclick="goAdd()">追加</button>
+    <input type="text" id="combo" placeholder="検索または新しい料理" oninput="draw()">
+    <button style="background:var(--accent);" onclick="goAdd()">追加</button>
   </div>
   <div id="list"></div>
 </div>
 <div class="container" id="detailPage">
   <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
-    <button style="background:#8e8e93; padding:8px 16px;" onclick="goBack()">戻る</button>
-    <div id="dTitle" style="font-size:18px;"></div>
-    <button style="background:var(--accent); padding:8px 16px;" onclick="save()">保存</button>
+    <button style="background:#8e8e93;" onclick="goBack()">戻る</button>
+    <div id="dTitle"></div>
+    <button style="background:var(--accent);" onclick="save()">保存</button>
   </div>
   <textarea id="dEdit"></textarea>
 </div>
-
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbz3fPGWGbktMl810WVy3EPskVBmU4R9iL9HhlQ_oDqSwd-IEw-Dg1DGAPswCfpSrLlj6g/exec";
+const URL = "あなたのGASのURL";
 let items = []; let startX = 0; let curCard = null;
 
 async function load() {
   const res = await fetch(URL);
   items = await res.json();
-  draw();
-}
-
-function checkInput() {
-  const v = document.getElementById("combo").value.trim();
-  const exact = items.some(i => i[0] === v);
-  document.getElementById("addBtn").style.display = (v && !exact) ? "block" : "none";
   draw();
 }
 
@@ -67,22 +55,13 @@ function draw() {
     <div class="recipe-item">
       <div class="del-label" onclick="del(${idx})">削除</div>
       <div class="recipe-card" ontouchstart="ts(event)" ontouchmove="tm(event)" ontouchend="te(event)" onclick="show(${idx})">
-        <div class="tag">${item[2] || '未設定'}</div>
         <div style="font-weight:700;">${item[0]}</div>
       </div>
     </div>`}).join("");
 }
 
-async function goAI() {
+function goAdd() {
   const v = document.getElementById("combo").value.trim(); if(!v) return;
-  const btn = document.getElementById("aiBtn"); btn.innerText = "⏳";
-  fetch(URL, { method: "POST", body: JSON.stringify({ method: "ai_suggest", ingredients: v }), mode: 'no-cors' });
-  // 返事を待たずに、3秒後にリロードする
-  setTimeout(() => { btn.innerText = "✨"; document.getElementById("combo").value = ""; load(); }, 3500);
-}
-
-async function goAdd() {
-  const v = document.getElementById("combo").value.trim();
   items.unshift([v, "", "未設定"]); draw();
   fetch(URL, { method: "POST", body: JSON.stringify({ method: "add", name: v }), mode: 'no-cors' });
 }
@@ -113,7 +92,6 @@ function goBack() { document.getElementById("mainPage").style.display = "block";
 function ts(e) { startX = e.touches[0].clientX; curCard = e.currentTarget; curCard.style.transition = "none"; }
 function tm(e) { let x = e.touches[0].clientX - startX; if(x < 0 && x > -100) curCard.style.transform = `translateX(${x}px)`; }
 function te(e) { curCard.style.transition = "transform 0.2s"; let x = e.changedTouches[0].clientX - startX; curCard.style.transform = x < -50 ? "translateX(-80px)" : "translateX(0)"; }
-
 load();
 </script>
 </body>
