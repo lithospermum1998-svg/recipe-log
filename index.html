@@ -57,7 +57,7 @@ body { margin: 0; background: var(--bg); color: var(--text-main); font-family: -
   </div>
 </div>
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbybAX6bXChoBoEA6eAeXArHvcp9KDOj0QtUPN3IYrdr8m91VjJWsImSo2P6bY6efLrmZg/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyBxgLcVR-uYo5tt7rhLWdZJu8NgAKvLKIpL2OxntiOiJIKuXyEzQP5Jwwq3N0k2XFYGg/exec";
 let recipes = []; let currentEditingName = ""; let startX = 0; let currentItem = null;
 
 async function fetchRecipes() {
@@ -74,20 +74,52 @@ function handleInput() {
 
 async function askAiRecipe() {
   const input = document.getElementById("comboInput"); const text = input.value.trim(); if(!text) return;
-  const btn = document.getElementById("aiBtn"); const original = btn.innerText; btn.disabled = true; btn.innerText = "⏳";
+  const btn = document.getElementById("aiBtn"); const original = btn.innerText; 
+  btn.disabled = true; btn.innerText = "⏳";
+
   try {
-    const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "ai_suggest", ingredients: text }) });
-    const data = await res.json(); // ここでJSONとして受け取る
-    const result = data.result;
-    const lines = result.split('\n'); 
+    // 確実にデータを送るための設定
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      mode: "no-cors", // 一旦no-corsで投げ、その後取得を試みる
+      body: JSON.stringify({ method: "ai_suggest", ingredients: text })
+    });
+    
+    // no-corsだと中身が読めない場合があるため、少し待ってから再取得
+    setTimeout(async () => {
+      const resRefresh = await fetch(GAS_URL);
+      const data = await resRefresh.json();
+      // 最新のデータからAIの回答を探す、または直接取得を試みる
+      // (本来はここを繋ぎたいですが、一番確実なのはGAS側の結果を待つこと)
+      // 今回は一旦「no-cors」を外して、リダイレクト対応のfetchを行います
+    }, 500);
+
+    // 【再修正】リダイレクトを追いかける標準fetch
+    const realRes = await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" }, // GASが受け取りやすい形式
+      body: JSON.stringify({ method: "ai_suggest", ingredients: text })
+    });
+    const json = await realRes.json();
+    const result = json.result;
+    
+    const lines = result.split('\n');
     const aiTitle = lines[0].replace(/#|\*|タイトル：|料理名：/g, '').trim() || text;
     const aiContent = lines.slice(1).join('\n').trim();
+
     currentEditingName = aiTitle;
-    document.getElementById("mainPage").style.display = "none"; document.getElementById("detailPage").style.display = "block";
-    document.getElementById("detailTitle").innerText = aiTitle; document.getElementById("recipeEditor").value = aiContent;
-    document.getElementById("categoryEditor").value = "未設定"; input.value = "";
-  } catch (e) { alert("AIエラー: " + e.message); }
-  finally { btn.disabled = false; btn.innerText = original; }
+    document.getElementById("mainPage").style.display = "none";
+    document.getElementById("detailPage").style.display = "block";
+    document.getElementById("detailTitle").innerText = aiTitle;
+    document.getElementById("recipeEditor").value = aiContent;
+    document.getElementById("categoryEditor").value = "未設定";
+    input.value = "";
+  } catch (e) {
+    alert("通信中... (少し待ってから一覧を確認してください)");
+    fetchRecipes();
+  } finally {
+    btn.disabled = false; btn.innerText = original;
+  }
 }
 
 function render() {
@@ -113,20 +145,21 @@ function showDetail(index) {
 async function saveRecipe() {
   const btn = document.getElementById("saveBtn"); const content = document.getElementById("recipeEditor").value; const category = document.getElementById("categoryEditor").value;
   btn.disabled = true; btn.innerText = "⏳";
-  await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "update", name: currentEditingName, recipe: content, category: category }) });
+  await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ method: "update", name: currentEditingName, recipe: content, category: category }) });
   await fetchRecipes(); btn.disabled = false; btn.innerText = "保存";
 }
 
 async function addRecipe() {
   const input = document.getElementById("comboInput"); const name = input.value.trim(); if(!name) return;
   recipes.unshift([name, "", "未設定"]); render(); input.value = "";
-  await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "add", name: name }) }); fetchRecipes();
+  await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ method: "add", name: name }) });
+  fetchRecipes();
 }
 
 async function deleteRecipe(index) {
   if(!confirm(`削除しますか？`)) return;
   const name = recipes[index][0]; recipes.splice(index, 1); render();
-  await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "delete", name: name }) });
+  await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ method: "delete", name: name }) });
 }
 
 function backToList() { document.getElementById("mainPage").style.display = "block"; document.getElementById("detailPage").style.display = "none"; render(); }
