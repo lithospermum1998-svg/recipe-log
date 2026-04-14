@@ -1,261 +1,120 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#000000" />
+<meta name="theme-color" content="#ffffff" />
 <title>RECIPE LOG</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap');
-
 :root {
-–bg: #000000;
-–surface-1: #1c1c1e;
-–surface-2: #2c2c2e;
-–text-main: #ffffff;
-–text-sub: #8e8e93;
-–accent: #ff9500;
-–accent2: #30d158;
-–red: #ff453a;
-–line: rgba(255,255,255,0.1);
+  --bg: #f2f2f7;          /* iOS風の薄いグレー背景 */
+  --surface-1: #ffffff;   /* 白いカード */
+  --surface-2: #e5e5ea;   /* ボタン等の背景グレー */
+  --text-main: #1c1c1e;   /* 濃いグレーの文字 */
+  --text-sub: #8e8e93;    /* 補助的な文字色 */
+  --accent: #ff9500;      /* キッチンに合うオレンジ */
+  --line: rgba(0,0,0,0.05); /* 薄い境界線 */
 }
 
-- { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-  background: var(–bg);
-  color: var(–text-main);
-  font-family: ‘Noto Sans JP’, sans-serif;
-  padding: calc(8px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: -apple-system, "Helvetica Neue", sans-serif;
+  padding: calc(8px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom));
   line-height: 1.4;
-  min-height: 100vh;
-  }
-  .container { max-width: 430px; margin: 0 auto; }
+}
+
+.container { max-width: 430px; margin: 0 auto; }
 
 /* Header */
-.app-header { display: flex; justify-content: space-between; align-items: flex-end; margin: 28px 0 20px; }
-.app-title {
-font-family: ‘Space Mono’, monospace;
-font-size: 22px; font-weight: 700;
-letter-spacing: -0.5px;
-}
-.app-subtitle { font-size: 11px; color: var(–text-sub); font-family: ‘Space Mono’, monospace; letter-spacing: 1px; }
+.header-row { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; }
+.section-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
 
-/* Tab Nav */
-.tab-nav { display: flex; gap: 6px; margin-bottom: 20px; }
-.tab-btn {
-flex: 1; padding: 10px 8px; border-radius: 12px; border: 1px solid var(–line);
-background: var(–surface-1); color: var(–text-sub); font-size: 13px; font-weight: 700;
-cursor: pointer; transition: all 0.2s; font-family: ‘Noto Sans JP’, sans-serif;
-}
-.tab-btn.active { background: var(–accent); color: #000; border-color: var(–accent); }
-
-/* Input Area */
-.input-row { display: flex; gap: 8px; margin-bottom: 14px; }
+/* Input Styles */
+.input-area { display: flex; gap: 8px; margin-bottom: 24px; }
 .inline-input {
-flex: 1; background: var(–surface-1); border: 1.5px solid var(–line);
-color: #fff; border-radius: 12px; padding: 14px; font-size: 15px; outline: none;
-font-family: ‘Noto Sans JP’, sans-serif; transition: border-color 0.2s;
+  flex: 1; background: var(--surface-1); border: 1px solid var(--line);
+  color: var(--text-main); border-radius: 12px; padding: 14px; font-size: 16px; 
+  outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-.inline-input:focus { border-color: var(–accent); }
+.inline-input::placeholder { color: var(--text-sub); }
+
+/* Button Styles */
 .add-btn {
-background: var(–accent); border: none; color: #000;
-font-weight: 900; border-radius: 12px; padding: 0 18px; cursor: pointer;
-font-size: 14px; font-family: ‘Noto Sans JP’, sans-serif; white-space: nowrap;
-transition: opacity 0.2s;
+  background: var(--accent); border: none; color: #fff;
+  font-weight: 800; border-radius: 12px; padding: 0 20px; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255,149,0,0.2);
 }
-.add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.add-btn:disabled { opacity: 0.5; }
 
-/* AI Suggest Button */
-.ai-suggest-btn {
-display: flex; align-items: center; gap: 6px;
-background: linear-gradient(135deg, #1a1a2e, #16213e);
-border: 1.5px solid rgba(99, 179, 237, 0.3);
-color: #63b3ed; border-radius: 12px; padding: 12px 16px;
-font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; margin-bottom: 20px;
-font-family: ‘Noto Sans JP’, sans-serif; transition: all 0.2s;
-}
-.ai-suggest-btn:hover { border-color: rgba(99, 179, 237, 0.6); }
-.ai-suggest-btn .spark { font-size: 16px; }
-
-/* Recipe List */
+/* List Styles */
 .list-container { display: grid; gap: 10px; }
 .recipe-card {
-background: var(–surface-1); border-radius: 16px; padding: 16px 18px;
-border: 1px solid var(–line); display: flex; justify-content: space-between; align-items: center;
-transition: border-color 0.2s;
+  background: var(--surface-1); border-radius: 16px; padding: 18px;
+  border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
-.recipe-card:active { border-color: var(–accent); }
-.recipe-name { flex: 1; font-size: 15px; font-weight: 700; cursor: pointer; }
-.recipe-preview { font-size: 11px; color: var(–text-sub); margin-top: 3px; }
+.recipe-name { flex: 1; font-size: 17px; font-weight: 700; color: var(--text-main); cursor: pointer; }
+
 .delete-btn {
-color: var(–red); font-size: 11px; font-weight: 800;
-border: 1px solid rgba(255,69,58,0.25); padding: 5px 10px; border-radius: 8px;
-cursor: pointer; background: none; flex-shrink: 0; margin-left: 12px;
-font-family: ‘Noto Sans JP’, sans-serif;
+  color: #ff3b30; font-size: 11px; font-weight: 700;
+  background: #fff5f5; border: 1px solid rgba(255,59,48,0.1); 
+  padding: 6px 12px; border-radius: 8px;
 }
 
-/* AI Suggestions Panel */
-.ai-panel {
-background: linear-gradient(135deg, #0d1b2a, #1a1a2e);
-border: 1.5px solid rgba(99, 179, 237, 0.2);
-border-radius: 16px; padding: 16px; margin-bottom: 20px; display: none;
-}
-.ai-panel.visible { display: block; }
-.ai-panel-title { font-size: 12px; font-weight: 700; color: #63b3ed; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
-.suggestion-item {
-display: flex; justify-content: space-between; align-items: center;
-padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
-cursor: pointer;
-}
-.suggestion-item:last-child { border-bottom: none; }
-.suggestion-name { font-size: 14px; font-weight: 700; }
-.suggestion-desc { font-size: 11px; color: var(–text-sub); margin-top: 2px; }
-.suggestion-add-btn {
-background: rgba(99, 179, 237, 0.15); border: 1px solid rgba(99, 179, 237, 0.3);
-color: #63b3ed; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: 700;
-cursor: pointer; flex-shrink: 0; margin-left: 10px; font-family: ‘Noto Sans JP’, sans-serif;
-}
-
-/* Loading States */
-.loading { text-align: center; color: var(–text-sub); padding: 40px 0; font-weight: 600; font-size: 14px; }
-.ai-loading {
-display: flex; align-items: center; gap: 8px; color: #63b3ed;
-font-size: 13px; font-weight: 700; padding: 8px 0;
-}
-.dot-pulse { display: flex; gap: 4px; }
-.dot-pulse span {
-width: 5px; height: 5px; background: #63b3ed; border-radius: 50%;
-animation: pulse 1.2s infinite;
-}
-.dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
-.dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes pulse { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
-
-/* Detail Page */
+/* Detail Page Styles */
 #detailPage { display: none; }
-.detail-header { display: flex; align-items: center; gap: 10px; margin: 20px 0 16px; }
-.back-btn {
-color: var(–accent); font-size: 13px; font-weight: 700;
-background: none; border: 1.5px solid rgba(255,149,0,0.3); padding: 8px 14px;
-border-radius: 10px; cursor: pointer; font-family: ‘Noto Sans JP’, sans-serif;
-white-space: nowrap; flex-shrink: 0;
-}
-.detail-title-text { font-size: 18px; font-weight: 900; flex: 1; }
-.save-btn {
-background: var(–accent2); border: none; color: #000; font-weight: 900;
-border-radius: 10px; padding: 8px 16px; cursor: pointer; font-size: 13px;
-font-family: ‘Noto Sans JP’, sans-serif; flex-shrink: 0;
-}
-.save-btn:disabled { opacity: 0.4; }
-
-/* AI Generate Button in Detail */
-.ai-gen-bar {
-display: flex; gap: 8px; margin-bottom: 12px;
-}
-.ai-gen-btn {
-flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-background: linear-gradient(135deg, #1a1a2e, #16213e);
-border: 1.5px solid rgba(99, 179, 237, 0.3);
-color: #63b3ed; border-radius: 12px; padding: 11px;
-font-size: 13px; font-weight: 700; cursor: pointer;
-font-family: ‘Noto Sans JP’, sans-serif; transition: all 0.2s;
-}
-.ai-gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
 .editor-textarea {
-width: 100%; min-height: 60vh; background: var(–surface-1);
-border: 1.5px solid var(–line); color: #fff; border-radius: 16px;
-padding: 16px; font-size: 15px; line-height: 1.7; resize: none; outline: none;
-font-family: ‘Noto Sans JP’, sans-serif; transition: border-color 0.2s;
+  width: 100%; min-height: 65vh; background: var(--surface-1);
+  border: 1px solid var(--line); color: var(--text-main); border-radius: 16px;
+  padding: 16px; font-size: 17px; line-height: 1.6; resize: none; outline: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
-.editor-textarea:focus { border-color: var(–accent); }
+.back-btn {
+  color: var(--text-main); font-size: 14px; font-weight: 700;
+  background: var(--surface-2); border: none; padding: 8px 16px; border-radius: 10px;
+}
 
-/* Ingredient Input for suggestion */
-.ingredient-hint { font-size: 11px; color: var(–text-sub); margin-bottom: 8px; }
+.loading { text-align: center; color: var(--text-sub); margin-top: 50px; font-weight: 600; }
 </style>
-
 </head>
 <body>
+
 <div class="container">
-
-  <!-- MAIN PAGE -->
-
   <div id="mainPage">
-    <div class="app-header">
-      <div>
-        <div class="app-title">RECIPE LOG</div>
-        <div class="app-subtitle">YOUR KITCHEN NOTEBOOK</div>
-      </div>
+    <div class="header-row">
+      <div class="section-title">RECIPE LOG</div>
     </div>
-
-```
-<!-- Tab Nav -->
-<div class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab('add')" id="tab-add">＋ レシピ追加</button>
-  <button class="tab-btn" onclick="switchTab('suggest')" id="tab-suggest">✦ 食材から提案</button>
-</div>
-
-<!-- Tab: Add Recipe -->
-<div id="panelAdd">
-  <div class="input-row">
-    <input id="newTitle" class="inline-input" placeholder="料理名を入力...">
-    <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
+    <div class="input-area">
+      <input id="newTitle" class="inline-input" placeholder="料理名を追加...">
+      <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
+    </div>
+    <div id="recipeList" class="list-container">
+      <div class="loading">読み込み中...</div>
+    </div>
   </div>
-  <p class="ingredient-hint">💡 追加すると AIが材料・手順を自動で入力します</p>
-</div>
-
-<!-- Tab: Suggest from Ingredients -->
-<div id="panelSuggest" style="display:none;">
-  <div class="input-row">
-    <input id="ingredientInput" class="inline-input" placeholder="例: 鶏肉、玉ねぎ、トマト">
-    <button id="suggestBtn" class="add-btn" onclick="suggestFromIngredients()">提案</button>
-  </div>
-  <div id="aiSuggestPanel" class="ai-panel"></div>
-</div>
-
-<!-- Recipe List -->
-<div id="recipeList" class="list-container">
-  <div class="loading">読み込み中...</div>
-</div>
-```
-
-  </div>
-
-  <!-- DETAIL PAGE -->
 
   <div id="detailPage">
-    <div class="detail-header">
+    <div class="header-row">
       <button class="back-btn" onclick="backToList()">← 戻る</button>
-      <div id="detailTitle" class="detail-title-text"></div>
-      <button id="saveBtn" class="save-btn" onclick="saveRecipe()">保存</button>
-    </div>
-    <div class="ai-gen-bar">
-      <button class="ai-gen-btn" id="aiGenBtn" onclick="aiGenerateRecipe()">
-        ✦ AIでレシピを自動生成
-      </button>
+      <div id="detailTitle" class="section-title"></div>
+      <button id="saveBtn" class="add-btn" style="height:36px; font-size:13px;" onclick="saveRecipe()">保存</button>
     </div>
     <textarea id="recipeEditor" class="editor-textarea" placeholder="材料や作り方をメモ..."></textarea>
   </div>
-
 </div>
 
 <script>
+// --- 重要：GASの「ウェブアプリURL」をここに貼り付け ---
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwyYoMVIIGoHyYGAhd3bgSn6AoyrNy51vqU_AEVRkYlb_G7iep5KrQJ9-YjxD24bYBFQQ/exec";
-const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 
-let recipes = [];
+let recipes = []; 
 let currentEditingName = "";
 
-// ===== TAB SWITCH =====
-function switchTab(tab) {
-  document.getElementById('tab-add').classList.toggle('active', tab === 'add');
-  document.getElementById('tab-suggest').classList.toggle('active', tab === 'suggest');
-  document.getElementById('panelAdd').style.display = tab === 'add' ? 'block' : 'none';
-  document.getElementById('panelSuggest').style.display = tab === 'suggest' ? 'block' : 'none';
-}
-
-// ===== LOAD =====
+// 1. データの読み込み
 async function fetchRecipes() {
   try {
     const res = await fetch(GAS_URL);
@@ -266,175 +125,83 @@ async function fetchRecipes() {
   }
 }
 
-// ===== RENDER =====
+// 2. 画面描画
 function render() {
   const list = document.getElementById("recipeList");
   if (recipes.length === 0) {
     list.innerHTML = '<div class="loading">レシピがありません</div>';
     return;
   }
-  list.innerHTML = recipes.map((item, index) => {
-    const preview = item[1] ? item[1].slice(0, 30) + (item[1].length > 30 ? '…' : '') : '(メモなし)';
-    return `
+  list.innerHTML = recipes.map((item, index) => `
     <div class="recipe-card">
-      <div style="flex:1;cursor:pointer;" onclick="showDetail(${index})">
-        <div class="recipe-name">${item[0]}</div>
-        <div class="recipe-preview">${preview}</div>
-      </div>
-      <button class="delete-btn" onclick="deleteRecipe(${index})">削除</button>
-    </div>`;
-  }).join("");
+      <div class="recipe-name" onclick="showDetail(${index})">${item[0]}</div>
+      <div class="delete-btn" onclick="deleteRecipe(${index})">削除</div>
+    </div>
+  `).join("");
 }
 
-// ===== DETAIL =====
+// 3. 詳細画面へ遷移
 function showDetail(index) {
   const item = recipes[index];
   currentEditingName = item[0];
+  
   document.getElementById("mainPage").style.display = "none";
   document.getElementById("detailPage").style.display = "block";
+  
   document.getElementById("detailTitle").innerText = currentEditingName;
   document.getElementById("recipeEditor").value = item[1] || "";
   window.scrollTo(0, 0);
 }
 
-// ===== SAVE =====
+// 4. 保存
 async function saveRecipe() {
   const btn = document.getElementById("saveBtn");
   const content = document.getElementById("recipeEditor").value;
-  btn.disabled = true; btn.innerText = "⏳";
+  
+  btn.disabled = true;
+  btn.innerText = "⏳";
+
   await fetch(GAS_URL, {
     method: "POST",
     body: JSON.stringify({ method: "update", name: currentEditingName, recipe: content })
   });
+
   const target = recipes.find(r => r[0] === currentEditingName);
-  if (target) target[1] = content;
-  btn.disabled = false; btn.innerText = "保存";
+  if(target) target[1] = content;
+
+  btn.disabled = false;
+  btn.innerText = "保存";
 }
 
-// ===== ADD =====
+// 5. 追加
 async function addRecipe() {
   const input = document.getElementById("newTitle");
   const btn = document.getElementById("addBtn");
   const name = input.value.trim();
-  if (!name) return;
+  if(!name) return;
+
   btn.disabled = true;
+  recipes.unshift([name, ""]);
+  render();
   input.value = "";
 
-  // Add to GAS first
   await fetch(GAS_URL, {
     method: "POST",
     body: JSON.stringify({ method: "add", name: name })
   });
-
-  // Reload, then open detail and AI-generate
-  await fetchRecipes();
-  const idx = recipes.findIndex(r => r[0] === name);
-  if (idx !== -1) {
-    showDetail(idx);
-    await aiGenerateRecipe();
-  }
+  
   btn.disabled = false;
+  fetchRecipes(); 
 }
 
-// ===== AI: Generate recipe for current dish =====
-async function aiGenerateRecipe() {
-  const btn = document.getElementById("aiGenBtn");
-  const editor = document.getElementById("recipeEditor");
-  btn.disabled = true;
-  btn.innerHTML = `<span style="display:flex;align-items:center;gap:6px;"><span class="dot-pulse"><span></span><span></span><span></span></span> 生成中...</span>`;
-
-  try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: CLAUDE_MODEL,
-        max_tokens: 1000,
-        system: "あなたはプロの料理研究家です。料理名を受け取ったら、材料リストと手順をシンプルかつ実用的な日本語で出力してください。フォーマット：\n【材料（2人分）】\n・食材1: 量\n・食材2: 量\n\n【作り方】\n1. 手順\n2. 手順\n\nMarkdownや余計な説明は不要。シンプルに。",
-        messages: [{ role: "user", content: `「${currentEditingName}」のレシピを教えてください。` }]
-      })
-    });
-    const data = await response.json();
-    const text = data.content?.find(c => c.type === "text")?.text || "";
-    editor.value = text;
-  } catch (e) {
-    editor.value = "（AIの生成に失敗しました）";
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = "✦ AIでレシピを再生成";
-}
-
-// ===== AI: Suggest from ingredients =====
-async function suggestFromIngredients() {
-  const input = document.getElementById("ingredientInput").value.trim();
-  const btn = document.getElementById("suggestBtn");
-  const panel = document.getElementById("aiSuggestPanel");
-  if (!input) return;
-
-  btn.disabled = true;
-  panel.className = "ai-panel visible";
-  panel.innerHTML = `<div class="ai-loading"><div class="dot-pulse"><span></span><span></span><span></span></div> レシピを考えています...</div>`;
-
-  try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: CLAUDE_MODEL,
-        max_tokens: 1000,
-        system: "ユーザーが持っている食材から作れる料理を5つ提案してください。必ずJSON配列のみを返してください。余計な説明やMarkdownコードブロックは不要です。フォーマット: [{\"name\":\"料理名\",\"desc\":\"一言説明（材料使用率など）\"}]",
-        messages: [{ role: "user", content: `手持ち食材: ${input}` }]
-      })
-    });
-    const data = await response.json();
-    const text = data.content?.find(c => c.type === "text")?.text || "[]";
-    let suggestions = [];
-    try {
-      const clean = text.replace(/```json|```/g, "").trim();
-      suggestions = JSON.parse(clean);
-    } catch { suggestions = []; }
-
-    if (suggestions.length === 0) {
-      panel.innerHTML = `<div class="ai-panel-title">✦ AI SUGGESTIONS</div><p style="color:var(--text-sub);font-size:13px;">提案を取得できませんでした</p>`;
-    } else {
-      panel.innerHTML = `<div class="ai-panel-title">✦ AI SUGGESTIONS</div>` +
-        suggestions.map(s => `
-          <div class="suggestion-item">
-            <div>
-              <div class="suggestion-name">${s.name}</div>
-              <div class="suggestion-desc">${s.desc}</div>
-            </div>
-            <button class="suggestion-add-btn" onclick="addFromSuggestion('${s.name.replace(/'/g,"\\'")}')">追加</button>
-          </div>`).join("");
-    }
-  } catch (e) {
-    panel.innerHTML = `<div class="ai-panel-title">✦ AI SUGGESTIONS</div><p style="color:var(--text-sub);font-size:13px;">エラーが発生しました</p>`;
-  }
-
-  btn.disabled = false;
-}
-
-// ===== Add from suggestion =====
-async function addFromSuggestion(name) {
-  await fetch(GAS_URL, {
-    method: "POST",
-    body: JSON.stringify({ method: "add", name: name })
-  });
-  await fetchRecipes();
-  const idx = recipes.findIndex(r => r[0] === name);
-  if (idx !== -1) {
-    showDetail(idx);
-    await aiGenerateRecipe();
-  }
-}
-
-// ===== DELETE =====
+// 6. 削除
 async function deleteRecipe(index) {
   const name = recipes[index][0];
-  if (!confirm(`「${name}」を削除しますか？`)) return;
+  if(!confirm(`「${name}」を削除しますか？`)) return;
+
   recipes.splice(index, 1);
   render();
+
   await fetch(GAS_URL, {
     method: "POST",
     body: JSON.stringify({ method: "delete", name: name })
@@ -446,12 +213,6 @@ function backToList() {
   document.getElementById("detailPage").style.display = "none";
   render();
 }
-
-// Enter key support
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('newTitle')?.addEventListener('keydown', e => { if (e.key === 'Enter') addRecipe(); });
-  document.getElementById('ingredientInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') suggestFromIngredients(); });
-});
 
 fetchRecipes();
 </script>
