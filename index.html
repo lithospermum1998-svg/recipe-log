@@ -14,7 +14,6 @@
   --text-sub: #8e8e93;
   --accent: #ff9500;
   --line: rgba(0,0,0,0.05);
-  --tag-bg: #f2f2f7;
 }
 * { box-sizing: border-box; }
 body {
@@ -23,48 +22,48 @@ body {
   padding: calc(8px + env(safe-area-inset-top)) 12px 100px;
 }
 .container { max-width: 430px; margin: 0 auto; }
-.header-row { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 12px; }
+.header-row { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; }
 .section-title { font-size: 22px; font-weight: 800; }
 
-/* 検索窓 */
-.search-area { margin-bottom: 16px; }
-.search-input {
-  width: 100%; background: var(--surface-1); border: 1px solid var(--line);
-  border-radius: 10px; padding: 10px 14px; font-size: 15px; outline: none;
+/* 統合入力エリア */
+.combo-area {
+  position: sticky; top: calc(8px + env(safe-area-inset-top)); z-index: 100;
+  background: var(--bg); padding-bottom: 16px;
 }
-
-.input-area { display: flex; gap: 8px; margin-bottom: 24px; }
-.inline-input {
+.input-group { display: flex; gap: 8px; }
+.combo-input {
   flex: 1; background: var(--surface-1); border: 1px solid var(--line);
-  color: var(--text-main); border-radius: 12px; padding: 14px; font-size: 16px; outline: none;
+  border-radius: 12px; padding: 14px; font-size: 16px; outline: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-.add-btn { background: var(--accent); border: none; color: #fff; font-weight: 800; border-radius: 12px; padding: 0 20px; }
+.add-btn {
+  background: var(--accent); border: none; color: #fff; font-weight: 800;
+  border-radius: 12px; padding: 0 16px; display: none; /* 初期は非表示 */
+}
 
-/* カードとタグ */
+/* リスト表示 */
 .recipe-card {
   background: var(--surface-1); border-radius: 16px; padding: 16px;
   border: 1px solid var(--line); margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 .tag-badge {
   display: inline-block; font-size: 10px; font-weight: 800; padding: 2px 8px;
-  border-radius: 6px; background: var(--tag-bg); color: var(--text-sub); margin-bottom: 6px;
+  border-radius: 6px; background: #f2f2f7; color: var(--text-sub); margin-bottom: 6px;
 }
-.recipe-name { font-size: 17px; font-weight: 700; cursor: pointer; }
+.recipe-name { font-size: 17px; font-weight: 700; cursor: pointer; flex: 1; }
 
-/* カテゴリ選択 */
+/* 編集画面 */
+#detailPage { display: none; }
 .category-select {
   width: 100%; background: var(--surface-2); border: none;
-  padding: 10px; border-radius: 10px; margin-bottom: 12px; font-size: 14px; font-weight: 700;
+  padding: 12px; border-radius: 12px; margin-bottom: 12px; font-weight: 700;
 }
-
-#detailPage { display: none; }
 .editor-textarea {
-  width: 100%; min-height: 55vh; background: var(--surface-1);
-  border: 1px solid var(--line); color: var(--text-main); border-radius: 16px;
-  padding: 16px; font-size: 17px; line-height: 1.6; resize: none; outline: none;
+  width: 100%; min-height: 60vh; background: var(--surface-1); border: 1px solid var(--line);
+  border-radius: 16px; padding: 16px; font-size: 17px; line-height: 1.6; resize: none; outline: none;
 }
-.back-btn { background: var(--surface-2); border: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; }
-.loading { text-align: center; color: var(--text-sub); margin-top: 50px; }
+.back-btn { background: var(--surface-2); border: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; }
+.loading { text-align: center; color: var(--text-sub); margin-top: 50px; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -72,20 +71,21 @@ body {
 <div class="container">
   <div id="mainPage">
     <div class="header-row"><div class="section-title">RECIPE LOG</div></div>
-    <div class="search-area">
-      <input type="text" id="searchInput" class="search-input" placeholder="レシピを検索..." oninput="render()">
+    
+    <div class="combo-area">
+      <div class="input-group">
+        <input type="text" id="comboInput" class="combo-input" placeholder="検索または新しい料理を追加..." oninput="handleInput()">
+        <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
+      </div>
     </div>
-    <div class="input-area">
-      <input id="newTitle" class="inline-input" placeholder="新しい料理...">
-      <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
-    </div>
+
     <div id="recipeList"></div>
   </div>
 
   <div id="detailPage">
     <div class="header-row">
       <button class="back-btn" onclick="backToList()">← 戻る</button>
-      <button id="saveBtn" class="add-btn" style="height:36px;" onclick="saveRecipe()">保存</button>
+      <button id="saveBtn" class="add-btn" style="display:block; height:40px;" onclick="saveRecipe()">保存</button>
     </div>
     <div id="detailTitle" class="section-title" style="margin-bottom:16px;"></div>
     <select id="categoryEditor" class="category-select">
@@ -102,7 +102,7 @@ body {
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyc_Q7F7RWGqeKxLfu_ivnDUDf1o91iWoPJ3tdaj8jbKZxTgQupfofJXEspOldDDEuowg/exec";
+const GAS_URL = "あなたのGASウェブアプリURL";
 let recipes = []; 
 let currentEditingName = "";
 
@@ -112,23 +112,44 @@ async function fetchRecipes() {
   render();
 }
 
+// 入力時の処理（検索とボタン表示の切り替え）
+function handleInput() {
+  const val = document.getElementById("comboInput").value.trim();
+  const btn = document.getElementById("addBtn");
+  
+  // フィルタリング実行
+  render();
+
+  // 入力があり、かつ完全に一致する料理名がリストにない場合のみ「追加」ボタンを出す
+  const exactMatch = recipes.some(r => r[0] === val);
+  if (val.length > 0 && !exactMatch) {
+    btn.style.display = "block";
+  } else {
+    btn.style.display = "none";
+  }
+}
+
 function render() {
-  const query = document.getElementById("searchInput").value.toLowerCase();
+  const query = document.getElementById("comboInput").value.toLowerCase();
   const list = document.getElementById("recipeList");
   
   const filtered = recipes.filter(item => 
     item[0].toLowerCase().includes(query) || (item[2] && item[2].includes(query))
   );
 
-  list.innerHTML = filtered.map((item, index) => {
-    // フィルタ前の本来のインデックスを探す
+  if (filtered.length === 0 && query === "") {
+    list.innerHTML = '<div class="loading">レシピがありません</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((item) => {
     const originalIndex = recipes.findIndex(r => r[0] === item[0]);
     return `
       <div class="recipe-card">
         <div class="tag-badge">${item[2] || '未設定'}</div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div class="recipe-name" onclick="showDetail(${originalIndex})">${item[0]}</div>
-          <div class="delete-btn" style="color:#ff3b30; font-size:11px; font-weight:700;" onclick="deleteRecipe(${originalIndex})">削除</div>
+          <div style="color:#ff3b30; font-size:11px; font-weight:700; padding:10px;" onclick="deleteRecipe(${originalIndex})">削除</div>
         </div>
       </div>
     `}).join("");
@@ -159,12 +180,15 @@ async function saveRecipe() {
 }
 
 async function addRecipe() {
-  const input = document.getElementById("newTitle");
+  const input = document.getElementById("comboInput");
   const name = input.value.trim();
   if(!name) return;
+  
   recipes.unshift([name, "", "未設定"]);
   render();
   input.value = "";
+  document.getElementById("addBtn").style.display = "none";
+
   await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "add", name: name }) });
   fetchRecipes();
 }
