@@ -24,7 +24,6 @@ body {
 .header-row { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; }
 .section-title { font-size: 22px; font-weight: 800; }
 
-/* — Sticky combo area — */
 .combo-area {
 position: sticky; top: calc(8px + env(safe-area-inset-top));
 z-index: 100; background: var(–bg); padding-bottom: 10px;
@@ -34,16 +33,13 @@ z-index: 100; background: var(–bg); padding-bottom: 10px;
 flex: 1; background: var(–surface-1); border: 1px solid var(–line);
 border-radius: 12px; padding: 14px; font-size: 16px; outline: none;
 box-shadow: 0 2px 8px rgba(0,0,0,0.04); color: var(–text-main);
-transition: border-color 0.2s;
 }
-.combo-input:focus { border-color: rgba(0,0,0,0.12); }
 .add-btn {
 background: var(–accent); border: none; color: #fff; font-weight: 800;
 border-radius: 12px; padding: 0 16px; height: 50px; cursor: pointer;
 white-space: nowrap; display: none;
 }
 
-/* AI button */
 .ai-trigger-btn {
 width: 50px; height: 50px; flex-shrink: 0;
 background: var(–surface-1); border: 1.5px solid var(–line);
@@ -53,31 +49,24 @@ box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 transition: background 0.15s, border-color 0.15s;
 position: relative;
 }
-.ai-trigger-btn.loading {
-border-color: var(–ai);
-background: #f0fdf6;
-}
+.ai-trigger-btn.loading { border-color: var(–ai); background: #f0fdf6; }
 .ai-trigger-btn .spinner {
 width: 18px; height: 18px;
 border: 2.5px solid rgba(48,185,107,0.25);
 border-top-color: var(–ai);
 border-radius: 50%;
 animation: spin 0.65s linear infinite;
-display: none;
-position: absolute;
+display: none; position: absolute;
 }
 .ai-trigger-btn.loading .spinner { display: block; }
 .ai-trigger-btn.loading .ai-icon { opacity: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* AI result panel */
 #aiPanel {
-display: none;
-margin-top: 8px;
+display: none; margin-top: 8px;
 background: var(–surface-1);
 border: 1.5px solid rgba(48,185,107,0.25);
-border-radius: 16px;
-overflow: hidden;
+border-radius: 16px; overflow: hidden;
 box-shadow: 0 4px 20px rgba(48,185,107,0.1);
 animation: slideDown 0.2s ease-out;
 }
@@ -94,39 +83,26 @@ font-size: 11px; font-weight: 800; color: var(–ai);
 text-transform: uppercase; letter-spacing: 0.6px;
 display: flex; align-items: center; gap: 5px;
 }
-.ai-panel-close {
-font-size: 18px; color: var(–text-sub); cursor: pointer; line-height: 1;
-padding: 4px;
-}
+.ai-panel-close { font-size: 18px; color: var(–text-sub); cursor: pointer; padding: 4px; }
 
-/* Suggestion chips (食材→料理候補) */
-.suggestion-chips {
-display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px 14px;
-}
+.suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px 14px; }
 .suggestion-chip {
 background: #f0fdf6; border: 1.5px solid rgba(48,185,107,0.3);
 color: #1a7a48; font-size: 14px; font-weight: 700;
 padding: 8px 14px; border-radius: 20px; cursor: pointer;
-transition: background 0.15s, transform 0.1s;
 display: flex; align-items: center; gap: 6px;
+transition: transform 0.1s;
 }
 .suggestion-chip:active { transform: scale(0.96); }
 .chip-add-icon { font-size: 16px; color: var(–ai); }
 
-/* Recipe preview (料理名→レシピ生成) */
-.recipe-preview {
-padding: 12px 14px 14px;
-}
-.recipe-preview-title {
-font-size: 13px; font-weight: 800; color: var(–text-main); margin-bottom: 8px;
-}
+.recipe-preview { padding: 12px 14px 14px; }
+.recipe-preview-title { font-size: 13px; font-weight: 800; color: var(–text-main); margin-bottom: 8px; }
 .recipe-preview-body {
 font-size: 14px; line-height: 1.7; color: var(–text-main);
 white-space: pre-wrap; max-height: 260px; overflow-y: auto;
 }
-.recipe-preview-actions {
-display: flex; gap: 8px; margin-top: 12px;
-}
+.recipe-preview-actions { display: flex; gap: 8px; margin-top: 12px; }
 .preview-use-btn {
 flex: 1; background: var(–ai); border: none; color: #fff;
 font-weight: 800; border-radius: 10px; padding: 11px; cursor: pointer; font-size: 14px;
@@ -136,7 +112,6 @@ background: var(–surface-2); border: none; color: var(–text-sub);
 font-weight: 700; border-radius: 10px; padding: 11px 16px; cursor: pointer; font-size: 14px;
 }
 
-/* — List — */
 .recipe-item-wrapper {
 position: relative; margin-bottom: 10px;
 background-color: var(–danger); border-radius: 16px; overflow: hidden;
@@ -158,7 +133,6 @@ color: var(–text-sub); margin-bottom: 6px; width: fit-content;
 }
 .recipe-name { font-size: 17px; font-weight: 700; cursor: pointer; }
 
-/* — Detail — */
 #detailPage { display: none; }
 .category-select {
 width: 100%; background: var(–surface-2); border: none;
@@ -175,7 +149,6 @@ border-radius: 12px; font-weight: 700; cursor: pointer;
 }
 .loading { text-align: center; color: var(–text-sub); margin-top: 50px; font-weight: 600; }
 
-/* Toast */
 .toast {
 position: fixed; bottom: calc(24px + env(safe-area-inset-bottom));
 left: 50%; transform: translateX(-50%);
@@ -190,11 +163,10 @@ opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
 <body>
 <div class="container">
 
-  <!-- Main Page -->
-
   <div id="mainPage">
     <div class="header-row"><div class="section-title">RECIPE LOG</div></div>
 
+```
 <div class="combo-area">
   <div class="input-group">
     <input type="text" id="comboInput" class="combo-input"
@@ -207,7 +179,6 @@ opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
     </button>
   </div>
 
-  <!-- AI Panel -->
   <div id="aiPanel">
     <div class="ai-panel-header">
       <div class="ai-panel-label">✦ AI提案</div>
@@ -218,10 +189,9 @@ opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
 </div>
 
 <div id="recipeList"><div class="loading">読み込み中...</div></div>
+```
 
   </div>
-
-  <!-- Detail Page -->
 
   <div id="detailPage">
     <div class="header-row">
@@ -245,11 +215,8 @@ opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
 <div id="toast" class="toast"></div>
 
 <script>
-// ===== 設定 =====
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyhoaM6BQW6sJaaELhg-TB9fGpjCdqqMAyu9z6DQotTnVOGTINLJJGl-0HNuIae8FY2/exec";
-const GEMINI_API_KEY = "AIzaSyCDBLpr3fU7yXn_Yr-bEVys-huPjfmEyx8"; // ← ここにAPIキーを貼り付け
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzJ35OiCBTc2vbTb9W7bQ92ZowV-4oyTox5aDrrpzDSYot1rRIb6N7_nhYy9nT9CF0brw/exec";
 
-// ===== State =====
 let recipes = [];
 let currentEditingName = "";
 let startX = 0, currentItem = null;
@@ -282,10 +249,7 @@ function render() {
     (item[0] && item[0].toLowerCase().includes(query)) ||
     (item[2] && item[2].toLowerCase().includes(query))
   );
-  if (filtered.length === 0) {
-    list.innerHTML = '<div class="loading">レシピがありません</div>';
-    return;
-  }
+  if (filtered.length === 0) { list.innerHTML = '<div class="loading">レシピがありません</div>'; return; }
   list.innerHTML = filtered.map((item) => {
     const originalIndex = recipes.findIndex(r => r[0] === item[0]);
     return `
@@ -351,29 +315,24 @@ function backToList() {
   render();
 }
 
-// ===== Gemini AI =====
+// ===== Gemini（GAS経由） =====
 async function callGemini(prompt) {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    }
-  );
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const res = await fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({ method: "gemini", prompt: prompt })
+  });
+  const text = await res.text();
+  if (!text || text === "success") throw new Error("empty response");
+  return text;
 }
 
-// 食材っぽいかどうか判定（簡易）
 function looksLikeIngredients(text) {
-  const ingredientHints = ["、","，",",","と","や","・","卵","肉","豚","鶏","牛","野菜","玉ねぎ","にんじん","じゃがいも","トマト","キャベツ","きのこ","豆腐","鮭","えび","チーズ","きゅうり","なす","ほうれん草","大根","ねぎ","しいたけ","もやし","ごぼう","れんこん","ブロッコリー"];
-  return ingredientHints.some(h => text.includes(h));
+  const hints = ["、","，",",","と","や","・","卵","肉","豚","鶏","牛","野菜","玉ねぎ","にんじん","じゃがいも","トマト","キャベツ","きのこ","豆腐","鮭","えび","チーズ","きゅうり","なす","ほうれん草","大根","ねぎ","しいたけ","もやし","ごぼう","れんこん","ブロッコリー"];
+  return hints.some(h => text.includes(h));
 }
 
 async function handleAI() {
-  const input = document.getElementById("comboInput");
-  const text = input.value.trim();
+  const text = document.getElementById("comboInput").value.trim();
   if (!text) { showToast("食材または料理名を入力してください"); return; }
 
   const btn = document.getElementById("aiBtn");
@@ -382,26 +341,13 @@ async function handleAI() {
 
   try {
     if (looksLikeIngredients(text)) {
-      // 食材 → 料理候補を提案
-      const prompt = `以下の食材から作れる料理を5〜7個提案してください。料理名のみをJSON配列で返してください。説明や前置きは不要です。
-食材: ${text}
-例: ["親子丼","野菜炒め","味噌汁","卵焼き","チャーハン"]`;
+      const prompt = `以下の食材から作れる料理を5〜7個提案してください。料理名のみをJSON配列で返してください。説明や前置きは不要です。\n食材: ${text}\n例: ["親子丼","野菜炒め","味噌汁","卵焼き","チャーハン"]`;
       const raw = await callGemini(prompt);
       const clean = raw.replace(/```json|```/g, "").trim();
       const dishes = JSON.parse(clean);
       showChips(dishes);
     } else {
-      // 料理名 → レシピ生成
-      const prompt = `「${text}」のレシピを以下のフォーマットで作成してください。余計な前置きは不要です。
-
-【材料】（2人分）
-・材料と分量を箇条書き
-
-【作り方】
-1. 手順を番号付きで
-
-【ポイント】
-・コツや注意点を1〜2つ`;
+      const prompt = `「${text}」のレシピを以下のフォーマットで作成してください。余計な前置きは不要です。\n\n【材料】（2人分）\n・材料と分量を箇条書き\n\n【作り方】\n1. 手順を番号付きで\n\n【ポイント】\n・コツや注意点を1〜2つ`;
       const recipeText = await callGemini(prompt);
       showRecipePreview(text, recipeText);
     }
@@ -412,7 +358,6 @@ async function handleAI() {
   }
 }
 
-// 料理候補チップを表示
 function showChips(dishes) {
   const body = document.getElementById("aiPanelBody");
   body.innerHTML = `
@@ -425,7 +370,6 @@ function showChips(dishes) {
   document.getElementById("aiPanel").style.display = "block";
 }
 
-// チップをタップ → 料理名を入力欄に入れてAI再実行
 async function chipTapped(name) {
   document.getElementById("comboInput").value = name;
   handleInput();
@@ -433,18 +377,8 @@ async function chipTapped(name) {
 
   const btn = document.getElementById("aiBtn");
   btn.classList.add("loading");
-
   try {
-    const prompt = `「${name}」のレシピを以下のフォーマットで作成してください。余計な前置きは不要です。
-
-【材料】（2人分）
-・材料と分量を箇条書き
-
-【作り方】
-1. 手順を番号付きで
-
-【ポイント】
-・コツや注意点を1〜2つ`;
+    const prompt = `「${name}」のレシピを以下のフォーマットで作成してください。余計な前置きは不要です。\n\n【材料】（2人分）\n・材料と分量を箇条書き\n\n【作り方】\n1. 手順を番号付きで\n\n【ポイント】\n・コツや注意点を1〜2つ`;
     const recipeText = await callGemini(prompt);
     showRecipePreview(name, recipeText);
   } catch (e) {
@@ -454,7 +388,6 @@ async function chipTapped(name) {
   }
 }
 
-// レシピプレビューを表示
 function showRecipePreview(name, content) {
   pendingRecipeName = name;
   pendingRecipeContent = content;
@@ -471,7 +404,6 @@ function showRecipePreview(name, content) {
   document.getElementById("aiPanel").style.display = "block";
 }
 
-// プレビューから追加
 async function applyRecipe() {
   closeAiPanel();
   await addRecipe(pendingRecipeName, pendingRecipeContent);
@@ -485,7 +417,6 @@ function closeAiPanel() {
   document.getElementById("aiPanelBody").innerHTML = "";
 }
 
-// ===== Toast =====
 function showToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg; t.classList.add("show");
@@ -493,10 +424,7 @@ function showToast(msg) {
 }
 
 document.getElementById("comboInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    const val = e.target.value.trim();
-    if (val) handleAI();
-  }
+  if (e.key === "Enter") handleAI();
 });
 
 fetchRecipes();
