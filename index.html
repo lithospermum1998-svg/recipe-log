@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
@@ -7,24 +8,25 @@
 <title>RECIPE LOG</title>
 <style>
 :root {
-  --bg: #f2f2f7;          /* iOS風の薄いグレー背景 */
-  --surface-1: #ffffff;   /* 白いカード */
-  --surface-2: #e5e5ea;   /* ボタン等の背景グレー */
-  --text-main: #1c1c1e;   /* 濃いグレーの文字 */
-  --text-sub: #8e8e93;    /* 補助的な文字色 */
-  --accent: #ff9500;      /* キッチンに合うオレンジ */
-  --line: rgba(0,0,0,0.05); /* 薄い境界線 */
+  --bg: #f2f2f7;
+  --surface-1: #ffffff;
+  --surface-2: #e5e5ea;
+  --text-main: #1c1c1e;
+  --text-sub: #8e8e93;
+  --accent: #ff9500;
+  --accent-ai: #5856d6;
+  --line: rgba(0,0,0,0.05);
 }
 
-* { box-sizing: border-box; }
+- { box-sizing: border-box; }
 
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text-main);
-  font-family: -apple-system, "Helvetica Neue", sans-serif;
-  padding: calc(8px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom));
-  line-height: 1.4;
+margin: 0;
+background: var(–bg);
+color: var(–text-main);
+font-family: -apple-system, “Helvetica Neue”, sans-serif;
+padding: calc(8px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom));
+line-height: 1.4;
 }
 
 .container { max-width: 430px; margin: 0 auto; }
@@ -34,87 +36,212 @@ body {
 .section-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
 
 /* Input Styles */
-.input-area { display: flex; gap: 8px; margin-bottom: 24px; }
+.input-area { display: flex; gap: 8px; margin-bottom: 12px; }
 .inline-input {
-  flex: 1; background: var(--surface-1); border: 1px solid var(--line);
-  color: var(--text-main); border-radius: 12px; padding: 14px; font-size: 16px; 
-  outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+flex: 1; background: var(–surface-1); border: 1px solid var(–line);
+color: var(–text-main); border-radius: 12px; padding: 14px; font-size: 16px;
+outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-.inline-input::placeholder { color: var(--text-sub); }
+.inline-input::placeholder { color: var(–text-sub); }
 
 /* Button Styles */
 .add-btn {
-  background: var(--accent); border: none; color: #fff;
-  font-weight: 800; border-radius: 12px; padding: 0 20px; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(255,149,0,0.2);
+background: var(–accent); border: none; color: #fff;
+font-weight: 800; border-radius: 12px; padding: 0 20px; cursor: pointer;
+box-shadow: 0 4px 12px rgba(255,149,0,0.2); white-space: nowrap;
 }
 .add-btn:disabled { opacity: 0.5; }
+
+.ai-btn {
+width: 100%;
+background: linear-gradient(135deg, #5856d6, #007aff);
+border: none; color: #fff;
+font-weight: 800; border-radius: 12px; padding: 14px 20px; cursor: pointer;
+box-shadow: 0 4px 16px rgba(88,86,214,0.3);
+font-size: 15px;
+display: flex; align-items: center; justify-content: center; gap: 8px;
+margin-bottom: 24px;
+transition: opacity 0.2s, transform 0.1s;
+}
+.ai-btn:active { transform: scale(0.98); }
+.ai-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ai-btn .spinner {
+width: 16px; height: 16px;
+border: 2px solid rgba(255,255,255,0.4);
+border-top-color: #fff;
+border-radius: 50%;
+animation: spin 0.7s linear infinite;
+display: none;
+}
+.ai-btn.loading .spinner { display: block; }
+.ai-btn.loading .btn-label { opacity: 0.7; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* List Styles */
 .list-container { display: grid; gap: 10px; }
 .recipe-card {
-  background: var(--surface-1); border-radius: 16px; padding: 18px;
-  border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+background: var(–surface-1); border-radius: 16px; padding: 18px;
+border: 1px solid var(–line); display: flex; justify-content: space-between; align-items: center;
+box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
-.recipe-name { flex: 1; font-size: 17px; font-weight: 700; color: var(--text-main); cursor: pointer; }
+.recipe-name { flex: 1; font-size: 17px; font-weight: 700; color: var(–text-main); cursor: pointer; }
 
 .delete-btn {
-  color: #ff3b30; font-size: 11px; font-weight: 700;
-  background: #fff5f5; border: 1px solid rgba(255,59,48,0.1); 
-  padding: 6px 12px; border-radius: 8px;
+color: #ff3b30; font-size: 11px; font-weight: 700;
+background: #fff5f5; border: 1px solid rgba(255,59,48,0.1);
+padding: 6px 12px; border-radius: 8px; cursor: pointer;
 }
 
 /* Detail Page Styles */
 #detailPage { display: none; }
 .editor-textarea {
-  width: 100%; min-height: 65vh; background: var(--surface-1);
-  border: 1px solid var(--line); color: var(--text-main); border-radius: 16px;
-  padding: 16px; font-size: 17px; line-height: 1.6; resize: none; outline: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+width: 100%; min-height: 65vh; background: var(–surface-1);
+border: 1px solid var(–line); color: var(–text-main); border-radius: 16px;
+padding: 16px; font-size: 17px; line-height: 1.6; resize: none; outline: none;
+box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 .back-btn {
-  color: var(--text-main); font-size: 14px; font-weight: 700;
-  background: var(--surface-2); border: none; padding: 8px 16px; border-radius: 10px;
+color: var(–text-main); font-size: 14px; font-weight: 700;
+background: var(–surface-2); border: none; padding: 8px 16px; border-radius: 10px; cursor: pointer;
 }
 
-.loading { text-align: center; color: var(--text-sub); margin-top: 50px; font-weight: 600; }
+/* AI Generate in detail page */
+.detail-ai-bar {
+display: flex; gap: 8px; margin-bottom: 12px;
+}
+.detail-ai-btn {
+flex: 1;
+background: linear-gradient(135deg, #5856d6, #007aff);
+border: none; color: #fff;
+font-weight: 700; border-radius: 12px; padding: 12px 16px; cursor: pointer;
+font-size: 14px;
+display: flex; align-items: center; justify-content: center; gap: 6px;
+box-shadow: 0 4px 12px rgba(88,86,214,0.25);
+transition: opacity 0.2s;
+}
+.detail-ai-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.detail-ai-btn .spinner {
+width: 14px; height: 14px;
+border: 2px solid rgba(255,255,255,0.4);
+border-top-color: #fff;
+border-radius: 50%;
+animation: spin 0.7s linear infinite;
+display: none;
+}
+.detail-ai-btn.loading .spinner { display: block; }
+
+/* AI Result Preview */
+#aiPreview {
+display: none;
+background: linear-gradient(135deg, #f0efff, #eaf4ff);
+border: 1.5px solid rgba(88,86,214,0.2);
+border-radius: 16px; padding: 16px; margin-bottom: 16px;
+}
+#aiPreview .preview-title {
+font-size: 12px; font-weight: 800; color: var(–accent-ai);
+text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+display: flex; align-items: center; gap: 6px;
+}
+#aiPreview .preview-content {
+font-size: 15px; line-height: 1.7; color: var(–text-main);
+white-space: pre-wrap;
+}
+.preview-actions { display: flex; gap: 8px; margin-top: 12px; }
+.preview-apply-btn {
+flex: 1; background: var(–accent-ai); border: none; color: #fff;
+font-weight: 800; border-radius: 10px; padding: 10px; cursor: pointer; font-size: 14px;
+}
+.preview-discard-btn {
+background: var(–surface-2); border: none; color: var(–text-sub);
+font-weight: 700; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-size: 14px;
+}
+
+.loading { text-align: center; color: var(–text-sub); margin-top: 50px; font-weight: 600; }
+
+/* Toast */
+.toast {
+position: fixed; bottom: calc(24px + env(safe-area-inset-bottom));
+left: 50%; transform: translateX(-50%);
+background: #1c1c1e; color: #fff;
+padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 600;
+opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+z-index: 999;
+}
+.toast.show { opacity: 1; }
 </style>
+
 </head>
 <body>
 
 <div class="container">
+  <!-- Main Page -->
   <div id="mainPage">
     <div class="header-row">
       <div class="section-title">RECIPE LOG</div>
     </div>
     <div class="input-area">
-      <input id="newTitle" class="inline-input" placeholder="料理名を追加...">
+      <input id="newTitle" class="inline-input" placeholder="料理名を入力...">
       <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
     </div>
-    <div id="recipeList" class="list-container">
-      <div class="loading">読み込み中...</div>
-    </div>
+    <!-- AI生成ボタン（メイン） -->
+    <button id="aiMainBtn" class="ai-btn" onclick="aiGenerateAndAdd()">
+      <div class="spinner"></div>
+      <span class="btn-label">✨ AIでレシピを自動生成して追加</span>
+    </button>
+
+```
+<div id="recipeList" class="list-container">
+  <div class="loading">読み込み中...</div>
+</div>
+```
+
   </div>
+
+  <!-- Detail Page -->
 
   <div id="detailPage">
     <div class="header-row">
       <button class="back-btn" onclick="backToList()">← 戻る</button>
-      <div id="detailTitle" class="section-title"></div>
+      <div id="detailTitle" class="section-title" style="flex:1; text-align:center; font-size:17px;"></div>
       <button id="saveBtn" class="add-btn" style="height:36px; font-size:13px;" onclick="saveRecipe()">保存</button>
     </div>
-    <textarea id="recipeEditor" class="editor-textarea" placeholder="材料や作り方をメモ..."></textarea>
+
+```
+<!-- 詳細ページのAI生成 -->
+<div class="detail-ai-bar">
+  <button id="detailAiBtn" class="detail-ai-btn" onclick="aiRegenerateDetail()">
+    <div class="spinner"></div>
+    <span>✨ AIで再生成</span>
+  </button>
+</div>
+
+<!-- AIプレビュー -->
+<div id="aiPreview">
+  <div class="preview-title">✨ AI提案</div>
+  <div id="aiPreviewContent" class="preview-content"></div>
+  <div class="preview-actions">
+    <button class="preview-apply-btn" onclick="applyAiResult()">このレシピを使う</button>
+    <button class="preview-discard-btn" onclick="discardAiResult()">破棄</button>
   </div>
 </div>
 
+<textarea id="recipeEditor" class="editor-textarea" placeholder="材料や作り方をメモ..."></textarea>
+```
+
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
 <script>
-// --- 重要：GASの「ウェブアプリURL」をここに貼り付け ---
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwyYoMVIIGoHyYGAhd3bgSn6AoyrNy51vqU_AEVRkYlb_G7iep5KrQJ9-YjxD24bYBFQQ/exec";
 
-let recipes = []; 
+let recipes = [];
 let currentEditingName = "";
+let aiGeneratedText = "";
 
-// 1. データの読み込み
+// ===== GAS連携 =====
 async function fetchRecipes() {
   try {
     const res = await fetch(GAS_URL);
@@ -125,7 +252,6 @@ async function fetchRecipes() {
   }
 }
 
-// 2. 画面描画
 function render() {
   const list = document.getElementById("recipeList");
   if (recipes.length === 0) {
@@ -140,68 +266,51 @@ function render() {
   `).join("");
 }
 
-// 3. 詳細画面へ遷移
 function showDetail(index) {
   const item = recipes[index];
   currentEditingName = item[0];
-  
   document.getElementById("mainPage").style.display = "none";
   document.getElementById("detailPage").style.display = "block";
-  
   document.getElementById("detailTitle").innerText = currentEditingName;
   document.getElementById("recipeEditor").value = item[1] || "";
+  document.getElementById("aiPreview").style.display = "none";
   window.scrollTo(0, 0);
 }
 
-// 4. 保存
 async function saveRecipe() {
   const btn = document.getElementById("saveBtn");
   const content = document.getElementById("recipeEditor").value;
-  
-  btn.disabled = true;
-  btn.innerText = "⏳";
-
+  btn.disabled = true; btn.innerText = "⏳";
   await fetch(GAS_URL, {
     method: "POST",
     body: JSON.stringify({ method: "update", name: currentEditingName, recipe: content })
   });
-
   const target = recipes.find(r => r[0] === currentEditingName);
-  if(target) target[1] = content;
-
-  btn.disabled = false;
-  btn.innerText = "保存";
+  if (target) target[1] = content;
+  btn.disabled = false; btn.innerText = "保存";
+  showToast("保存しました ✓");
 }
 
-// 5. 追加
 async function addRecipe() {
   const input = document.getElementById("newTitle");
   const btn = document.getElementById("addBtn");
   const name = input.value.trim();
-  if(!name) return;
-
+  if (!name) return;
   btn.disabled = true;
   recipes.unshift([name, ""]);
-  render();
-  input.value = "";
-
+  render(); input.value = "";
   await fetch(GAS_URL, {
     method: "POST",
     body: JSON.stringify({ method: "add", name: name })
   });
-  
   btn.disabled = false;
-  fetchRecipes(); 
+  fetchRecipes();
 }
 
-// 6. 削除
 async function deleteRecipe(index) {
   const name = recipes[index][0];
-  if(!confirm(`「${name}」を削除しますか？`)) return;
-
-  recipes.splice(index, 1);
-  render();
-
+  if (!confirm(`「${name}」を削除しますか？`)) return;
+  recipes.splice(index, 1); render();
   await fetch(GAS_URL, {
     method: "POST",
     body: JSON.stringify({ method: "delete", name: name })
@@ -213,6 +322,127 @@ function backToList() {
   document.getElementById("detailPage").style.display = "none";
   render();
 }
+
+// ===== Claude AI連携 =====
+async function callClaudeAPI(dishName) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{
+        role: "user",
+        content: `「${dishName}」のレシピを作成してください。
+以下のフォーマットで、簡潔かつ実用的に記載してください。
+
+【材料】（2人分）
+・（材料と分量を箇条書き）
+
+【作り方】
+1. （手順を番号付きで）
+2. 
+3. 
+
+【ポイント】
+・（コツや注意点を1〜2つ）
+
+余計な前置きや説明は不要です。上記フォーマットのみで回答してください。`
+      }]
+    })
+  });
+  const data = await response.json();
+  return data.content?.[0]?.text || "";
+}
+
+// メインページ：AI生成して追加
+async function aiGenerateAndAdd() {
+  const input = document.getElementById("newTitle");
+  const name = input.value.trim();
+  if (!name) {
+    showToast("料理名を入力してください");
+    return;
+  }
+
+  const btn = document.getElementById("aiMainBtn");
+  btn.disabled = true;
+  btn.classList.add("loading");
+  btn.querySelector(".btn-label").textContent = `「${name}」を生成中...`;
+
+  try {
+    const recipeText = await callClaudeAPI(name);
+
+    // 追加 & 保存
+    recipes.unshift([name, recipeText]);
+    render();
+    input.value = "";
+
+    await fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify({ method: "add", name: name })
+    });
+    await fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify({ method: "update", name: name, recipe: recipeText })
+    });
+
+    showToast("✨ レシピを生成・追加しました！");
+    // 生成後、詳細ページへ遷移
+    const newIndex = recipes.findIndex(r => r[0] === name);
+    if (newIndex >= 0) showDetail(newIndex);
+
+  } catch (e) {
+    showToast("生成に失敗しました");
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove("loading");
+    btn.querySelector(".btn-label").textContent = "✨ AIでレシピを自動生成して追加";
+  }
+}
+
+// 詳細ページ：AI再生成
+async function aiRegenerateDetail() {
+  const btn = document.getElementById("detailAiBtn");
+  btn.disabled = true;
+  btn.classList.add("loading");
+
+  try {
+    const recipeText = await callClaudeAPI(currentEditingName);
+    aiGeneratedText = recipeText;
+    document.getElementById("aiPreviewContent").textContent = recipeText;
+    document.getElementById("aiPreview").style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (e) {
+    showToast("生成に失敗しました");
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove("loading");
+  }
+}
+
+function applyAiResult() {
+  document.getElementById("recipeEditor").value = aiGeneratedText;
+  document.getElementById("aiPreview").style.display = "none";
+  showToast("レシピを適用しました");
+}
+
+function discardAiResult() {
+  document.getElementById("aiPreview").style.display = "none";
+  aiGeneratedText = "";
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+// Enterキーでも追加
+document.getElementById("newTitle").addEventListener("keydown", e => {
+  if (e.key === "Enter") addRecipe();
+});
 
 fetchRecipes();
 </script>
