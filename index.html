@@ -22,7 +22,6 @@ body {
 .container { max-width: 430px; margin: 0 auto; }
 .header-row { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; }
 .section-title { font-size: 22px; font-weight: 800; }
-
 .combo-area { position: sticky; top: calc(8px + env(safe-area-inset-top)); z-index: 100; background: var(--bg); padding-bottom: 10px; }
 .input-group { display: flex; gap: 8px; align-items: center; }
 .combo-input {
@@ -31,7 +30,6 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.04); color: var(--text-main);
 }
 .add-btn { background: var(--accent); border: none; color: #fff; font-weight: 800; border-radius: 12px; padding: 0 16px; height: 50px; cursor: pointer; display: none; }
-
 .ai-trigger-btn {
   width: 50px; height: 50px; flex-shrink: 0; background: var(--surface-1); border: 1.5px solid var(--line);
   border-radius: 12px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative;
@@ -43,32 +41,24 @@ body {
 .ai-trigger-btn.loading .spinner { display: block; }
 .ai-trigger-btn.loading .ai-icon { opacity: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
 #aiPanel {
   display: none; margin-top: 8px; background: var(--surface-1); border: 1.5px solid rgba(48,185,107,0.25);
   border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); animation: slideDown 0.2s ease-out;
 }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-
 .ai-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 0; }
 .ai-panel-label { font-size: 11px; font-weight: 800; color: var(--ai); }
 .ai-panel-close { font-size: 18px; color: var(--text-sub); cursor: pointer; padding: 4px; }
-
-.suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px 14px; }
-.suggestion-chip { background: #f0fdf6; border: 1.5px solid rgba(48,185,107,0.3); color: #1a7a48; font-size: 14px; font-weight: 700; padding: 8px 14px; border-radius: 20px; }
-
 .recipe-preview { padding: 12px 14px 14px; }
 .recipe-preview-title { font-size: 13px; font-weight: 800; margin-bottom: 8px; }
 .recipe-preview-body { font-size: 14px; line-height: 1.7; white-space: pre-wrap; max-height: 260px; overflow-y: auto; }
 .preview-actions { display: flex; gap: 8px; margin-top: 12px; }
 .preview-use-btn { flex: 1; background: var(--ai); color: #fff; border: none; padding: 11px; border-radius: 10px; font-weight: 800; }
 .preview-discard-btn { background: var(--surface-2); border: none; padding: 11px 16px; border-radius: 10px; font-weight: 700; }
-
 .recipe-item-wrapper { position: relative; margin-bottom: 10px; background-color: var(--danger); border-radius: 16px; overflow: hidden; }
 .delete-action { position: absolute; right: 0; top: 0; bottom: 0; width: 80px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 800; }
 .recipe-card { position: relative; z-index: 2; background: var(--surface-1); padding: 16px; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 .recipe-name { font-size: 17px; font-weight: 700; }
-
 #detailPage { display: none; }
 .editor-textarea { width: 100%; min-height: 60vh; border: 1px solid var(--line); border-radius: 16px; padding: 16px; font-size: 17px; line-height: 1.6; outline: none; }
 .back-btn { background: var(--surface-2); border: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; }
@@ -97,7 +87,6 @@ body {
     </div>
     <div id="recipeList"><div class="loading">読み込み中...</div></div>
   </div>
-
   <div id="detailPage">
     <div class="header-row">
       <button class="back-btn" onclick="backToList()">← 戻る</button>
@@ -110,8 +99,10 @@ body {
 <div id="toast" class="toast"></div>
 
 <script>
+// ===== ここを自分のものに書き換え！ =====
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyhoaM6BQW6sJaaELhg-TB9fGpjCdqqMAyu9z6DQotTnVOGTINLJJGl-0HNuIae8FY2/exec";
 const GEMINI_API_KEY = "AIzaSyCDBLpr3fU7yXn_Yr-bEVys-huPjfmEyx8";
+// ===================================
 
 let recipes = [];
 let currentEditingName = "", startX = 0, currentItem = null;
@@ -155,67 +146,28 @@ function showDetail(index) {
   document.getElementById("recipeEditor").value = item[1] || "";
 }
 
-async function callGemini(prompt) {
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
-    const data = await res.json();
-    console.log("Gemini Response:", data); // デバッグ用：ブラウザのコンソールで確認可能
-    
-    if (data.error) return "APIエラー: " + data.error.message;
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "AIが回答を生成できませんでした。";
-  } catch (e) {
-    return "接続エラー: " + e.message;
-  }
-}
-
-function looksLikeIngredients(text) {
-  const hints = ["、",",","と","や","・","卵","肉","豚","鶏","牛","菜","玉","トマト"];
-  return hints.some(h => text.includes(h));
-}
-
 async function handleAI() {
   const input = document.getElementById("comboInput");
   const text = input.value.trim();
   if (!text) return;
-
   const btn = document.getElementById("aiBtn");
   btn.classList.add("loading"); closeAiPanel();
 
   try {
-    if (looksLikeIngredients(text)) {
-      const prompt = `食材「${text}」から作れる料理名を5個、JSON配列 ["料理1","料理2"] で返して。説明不要。`;
-      const raw = await callGemini(prompt);
-      const clean = raw.replace(/```json|```/g, "").trim();
-      const dishes = JSON.parse(clean);
-      showChips(dishes);
-    } else {
-      const prompt = `「${text}」のレシピを【材料】【作り方】【ポイント】の形式で教えて。`;
-      const recipeText = await callGemini(prompt);
-      showRecipePreview(text, recipeText);
-    }
-  } catch (e) { showToast("AI処理エラー"); }
+    // 安定版の v1 エンドポイントを使用
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ parts: [{ text: `「${text}」のレシピを【材料】【作り方】【ポイント】の形式で教えて。` }] }] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const recipeText = data.candidates?.[0]?.content?.parts?.[0]?.text || "生成失敗";
+
+    pendingName = text; pendingContent = recipeText;
+    document.getElementById("aiPanelBody").innerHTML = `<div class="recipe-preview"><div class="recipe-preview-title">📋 ${text} のレシピ</div><div class="recipe-preview-body">${recipeText}</div><div class="preview-actions"><button class="preview-use-btn" onclick="applyRecipe()">追加して保存</button><button class="preview-discard-btn" onclick="closeAiPanel()">破棄</button></div></div>`;
+    document.getElementById("aiPanel").style.display = "block";
+  } catch (e) { showToast("AIエラー: " + e.message); }
   finally { btn.classList.remove("loading"); }
-}
-
-function showChips(dishes) {
-  const body = document.getElementById("aiPanelBody");
-  body.innerHTML = `<div class="suggestion-chips">${dishes.map(d => `<div class="suggestion-chip" onclick="chipTapped('${d.replace(/'/g, "\\'")}')">＋ ${d}</div>`).join("")}</div>`;
-  document.getElementById("aiPanel").style.display = "block";
-}
-
-async function chipTapped(name) {
-  document.getElementById("comboInput").value = name;
-  closeAiPanel(); handleAI();
-}
-
-function showRecipePreview(name, content) {
-  pendingName = name; pendingContent = content;
-  const body = document.getElementById("aiPanelBody");
-  body.innerHTML = `<div class="recipe-preview"><div class="recipe-preview-title">📋 ${name} のレシピ</div><div class="recipe-preview-body">${content}</div><div class="preview-actions"><button class="preview-use-btn" onclick="applyRecipe()">追加して保存</button><button class="preview-discard-btn" onclick="closeAiPanel()">破棄</button></div></div>`;
-  document.getElementById("aiPanel").style.display = "block";
 }
 
 async function applyRecipe() {
