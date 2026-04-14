@@ -1,169 +1,120 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#ffffff" />
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>RECIPE LOG</title>
 <style>
-:root {
-  --bg: #f2f2f7; --surface-1: #ffffff; --surface-2: #e5e5ea;
-  --text-main: #1c1c1e; --text-sub: #8e8e93; --accent: #ff9500;
-  --ai-purple: #6200ee; --danger: #ff3b30; --line: rgba(0,0,0,0.05);
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; padding: calc(8px + env(safe-area-inset-top)) 12px 100px; overflow-x: hidden; }
+:root { --bg: #f2f2f7; --surface: #ffffff; --accent: #ff9500; --ai: #6200ee; --danger: #ff3b30; --text: #1c1c1e; }
+* { box-sizing: border-box; font-family: -apple-system, sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--text); padding: env(safe-area-inset-top) 12px 100px; }
 .container { max-width: 430px; margin: 0 auto; }
-.header-row { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; }
-.section-title { font-size: 22px; font-weight: 800; }
-.combo-area { position: sticky; top: calc(8px + env(safe-area-inset-top)); z-index: 100; background: var(--bg); padding-bottom: 16px; }
-.input-group { display: flex; gap: 8px; }
-.combo-input { flex: 1; background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: 16px; outline: none; }
-.ai-btn { background: var(--ai-purple); border: none; color: #fff; font-size: 18px; border-radius: 12px; padding: 0 14px; display: block; cursor: pointer; }
-.add-btn { background: var(--accent); border: none; color: #fff; font-weight: 800; border-radius: 12px; padding: 0 16px; display: none; }
-.recipe-item-wrapper { position: relative; margin-bottom: 10px; background-color: var(--danger); border-radius: 16px; overflow: hidden; }
-.delete-action { position: absolute; right: 0; top: 0; bottom: 0; width: 80px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 800; }
-.recipe-card { position: relative; z-index: 2; background: var(--surface-1); padding: 16px; display: flex; flex-direction: column; transition: transform 0.2s ease-out; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-.tag-badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: #e5e5ea; color: var(--text-sub); margin-bottom: 6px; width: fit-content; }
-.recipe-name { font-size: 17px; font-weight: 700; cursor: pointer; }
+.header { font-size: 22px; font-weight: 800; margin: 24px 0; }
+.input-row { position: sticky; top: 10px; z-index: 10; display: flex; gap: 8px; background: var(--bg); padding-bottom: 16px; }
+input { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-size: 16px; outline: none; }
+button { border: none; border-radius: 12px; color: white; font-weight: 800; cursor: pointer; }
+.btn-ai { background: var(--ai); padding: 0 16px; font-size: 18px; }
+.btn-add { background: var(--accent); padding: 0 16px; display: none; }
+.recipe-item { position: relative; background: var(--danger); border-radius: 16px; overflow: hidden; margin-bottom: 10px; }
+.recipe-card { position: relative; z-index: 2; background: var(--surface); padding: 16px; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.del-label { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: white; font-weight: 800; font-size: 14px; }
 #detailPage { display: none; }
-.category-select { width: 100%; background: var(--surface-2); border: none; padding: 12px; border-radius: 12px; margin-bottom: 12px; font-weight: 700; }
-.editor-textarea { width: 100%; min-height: 60vh; background: var(--surface-1); border: 1px solid var(--line); border-radius: 16px; padding: 16px; font-size: 17px; line-height: 1.6; resize: none; outline: none; }
-.back-btn { background: var(--surface-2); border: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; }
-.loading { text-align: center; color: var(--text-sub); margin-top: 50px; font-weight: 600; }
+textarea { width: 100%; height: 60vh; border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); padding: 16px; font-size: 16px; resize: none; outline: none; }
+.tag { font-size: 10px; font-weight: 800; background: #e5e5ea; padding: 2px 8px; border-radius: 6px; margin-bottom: 8px; display: inline-block; }
 </style>
 </head>
 <body>
-<div class="container">
-  <div id="mainPage">
-    <div class="header-row"><div class="section-title">RECIPE LOG</div></div>
-    <div class="combo-area"><div class="input-group">
-      <input type="text" id="comboInput" class="combo-input" placeholder="検索・相談・追加..." oninput="handleInput()">
-      <button id="aiBtn" class="ai-btn" onclick="askAiRecipe()">✨</button>
-      <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
-    </div></div>
-    <div id="recipeList"><div class="loading">読み込み中...</div></div>
+<div class="container" id="mainPage">
+  <div class="header">RECIPE LOG</div>
+  <div class="input-row">
+    <input type="text" id="combo" placeholder="検索・追加・AI相談" oninput="checkInput()">
+    <button id="aiBtn" class="btn-ai" onclick="goAI()">✨</button>
+    <button id="addBtn" class="btn-add" onclick="goAdd()">追加</button>
   </div>
-  <div id="detailPage">
-    <div class="header-row">
-      <button class="back-btn" onclick="backToList()">← 戻る</button>
-      <button id="saveBtn" class="add-btn" style="display:block; height:40px;" onclick="saveRecipe()">保存</button>
-    </div>
-    <div id="detailTitle" class="section-title" style="margin-bottom:16px;"></div>
-    <select id="categoryEditor" class="category-select">
-      <option value="未設定">カテゴリを選択</option><option value="肉料理">肉料理</option><option value="魚料理">魚料理</option><option value="野菜・サラダ">野菜・サラダ</option><option value="麺・ごはん">麺・ごはん</option><option value="デザート">デザート</option><option value="その他">その他</option>
-    </select>
-    <textarea id="recipeEditor" class="editor-textarea" placeholder="作り方をメモ..."></textarea>
-  </div>
+  <div id="list"></div>
 </div>
+<div class="container" id="detailPage">
+  <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
+    <button style="background:#8e8e93; padding:8px 16px;" onclick="goBack()">戻る</button>
+    <div id="dTitle" style="font-size:18px;"></div>
+    <button style="background:var(--accent); padding:8px 16px;" onclick="save()">保存</button>
+  </div>
+  <textarea id="dEdit"></textarea>
+</div>
+
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyBxgLcVR-uYo5tt7rhLWdZJu8NgAKvLKIpL2OxntiOiJIKuXyEzQP5Jwwq3N0k2XFYGg/exec";
-let recipes = []; let currentEditingName = ""; let startX = 0; let currentItem = null;
+const URL = "https://script.google.com/macros/s/AKfycbz3fPGWGbktMl810WVy3EPskVBmU4R9iL9HhlQ_oDqSwd-IEw-Dg1DGAPswCfpSrLlj6g/exec";
+let items = []; let startX = 0; let curCard = null;
 
-async function fetchRecipes() {
-  try { const res = await fetch(GAS_URL); recipes = await res.json(); render(); }
-  catch (e) { document.getElementById("recipeList").innerHTML = '<div class="loading">接続エラー</div>'; }
+async function load() {
+  const res = await fetch(URL);
+  items = await res.json();
+  draw();
 }
 
-function handleInput() {
-  const val = document.getElementById("comboInput").value.trim();
-  const addBtn = document.getElementById("addBtn"); const aiBtn = document.getElementById("aiBtn"); render();
-  const exactMatch = recipes.some(r => r[0] === val);
-  if (val.length > 0 && !exactMatch) { addBtn.style.display = "block"; aiBtn.style.display = "block"; } else { addBtn.style.display = "none"; }
+function checkInput() {
+  const v = document.getElementById("combo").value.trim();
+  const exact = items.some(i => i[0] === v);
+  document.getElementById("addBtn").style.display = (v && !exact) ? "block" : "none";
+  draw();
 }
 
-async function askAiRecipe() {
-  const input = document.getElementById("comboInput"); const text = input.value.trim(); if(!text) return;
-  const btn = document.getElementById("aiBtn"); const original = btn.innerText; 
-  btn.disabled = true; btn.innerText = "⏳";
-
-  try {
-    // 確実にデータを送るための設定
-    const res = await fetch(GAS_URL, {
-      method: "POST",
-      mode: "no-cors", // 一旦no-corsで投げ、その後取得を試みる
-      body: JSON.stringify({ method: "ai_suggest", ingredients: text })
-    });
-    
-    // no-corsだと中身が読めない場合があるため、少し待ってから再取得
-    setTimeout(async () => {
-      const resRefresh = await fetch(GAS_URL);
-      const data = await resRefresh.json();
-      // 最新のデータからAIの回答を探す、または直接取得を試みる
-      // (本来はここを繋ぎたいですが、一番確実なのはGAS側の結果を待つこと)
-      // 今回は一旦「no-cors」を外して、リダイレクト対応のfetchを行います
-    }, 500);
-
-    // 【再修正】リダイレクトを追いかける標準fetch
-    const realRes = await fetch(GAS_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" }, // GASが受け取りやすい形式
-      body: JSON.stringify({ method: "ai_suggest", ingredients: text })
-    });
-    const json = await realRes.json();
-    const result = json.result;
-    
-    const lines = result.split('\n');
-    const aiTitle = lines[0].replace(/#|\*|タイトル：|料理名：/g, '').trim() || text;
-    const aiContent = lines.slice(1).join('\n').trim();
-
-    currentEditingName = aiTitle;
-    document.getElementById("mainPage").style.display = "none";
-    document.getElementById("detailPage").style.display = "block";
-    document.getElementById("detailTitle").innerText = aiTitle;
-    document.getElementById("recipeEditor").value = aiContent;
-    document.getElementById("categoryEditor").value = "未設定";
-    input.value = "";
-  } catch (e) {
-    alert("通信中... (少し待ってから一覧を確認してください)");
-    fetchRecipes();
-  } finally {
-    btn.disabled = false; btn.innerText = original;
-  }
+function draw() {
+  const q = document.getElementById("combo").value.toLowerCase();
+  const f = items.filter(i => i[0].toLowerCase().includes(q));
+  document.getElementById("list").innerHTML = f.map((item, i) => {
+    const idx = items.findIndex(it => it[0] === item[0]);
+    return `
+    <div class="recipe-item">
+      <div class="del-label" onclick="del(${idx})">削除</div>
+      <div class="recipe-card" ontouchstart="ts(event)" ontouchmove="tm(event)" ontouchend="te(event)" onclick="show(${idx})">
+        <div class="tag">${item[2] || '未設定'}</div>
+        <div style="font-weight:700;">${item[0]}</div>
+      </div>
+    </div>`}).join("");
 }
 
-function render() {
-  const query = document.getElementById("comboInput").value.toLowerCase(); const list = document.getElementById("recipeList");
-  const filtered = recipes.filter(item => (item[0] && item[0].toLowerCase().includes(query)) || (item[2] && item[2].toLowerCase().includes(query)));
-  list.innerHTML = filtered.map((item) => {
-    const idx = recipes.findIndex(r => r[0] === item[0]);
-    return `<div class="recipe-item-wrapper"><div class="delete-action" onclick="deleteRecipe(${idx})">削除</div><div class="recipe-card" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)"><span class="tag-badge">${item[2] || '未設定'}</span><div class="recipe-name" onclick="showDetail(${idx})">${item[0]}</div></div></div>`
-  }).join("");
+async function goAI() {
+  const v = document.getElementById("combo").value.trim(); if(!v) return;
+  const btn = document.getElementById("aiBtn"); btn.innerText = "⏳";
+  fetch(URL, { method: "POST", body: JSON.stringify({ method: "ai_suggest", ingredients: v }), mode: 'no-cors' });
+  // 返事を待たずに、3秒後にリロードする
+  setTimeout(() => { btn.innerText = "✨"; document.getElementById("combo").value = ""; load(); }, 3500);
 }
 
-function handleTouchStart(e) { startX = e.touches[0].clientX; currentItem = e.currentTarget; currentItem.style.transition = "none"; }
-function handleTouchMove(e) { let moveX = e.touches[0].clientX - startX; if (moveX < 0 && moveX > -100) { currentItem.style.transform = `translateX(${moveX}px)`; } }
-function handleTouchEnd(e) { currentItem.style.transition = "transform 0.2s ease-out"; let moveX = e.changedTouches[0].clientX - startX; if (moveX < -50) { currentItem.style.transform = `translateX(-80px)`; } else { currentItem.style.transform = `translateX(0)`; } }
-
-function showDetail(index) {
-  const item = recipes[index]; currentEditingName = item[0];
-  document.getElementById("mainPage").style.display = "none"; document.getElementById("detailPage").style.display = "block";
-  document.getElementById("detailTitle").innerText = currentEditingName; document.getElementById("recipeEditor").value = item[1] || "";
-  document.getElementById("categoryEditor").value = item[2] || "未設定"; window.scrollTo(0, 0);
+async function goAdd() {
+  const v = document.getElementById("combo").value.trim();
+  items.unshift([v, "", "未設定"]); draw();
+  fetch(URL, { method: "POST", body: JSON.stringify({ method: "add", name: v }), mode: 'no-cors' });
 }
 
-async function saveRecipe() {
-  const btn = document.getElementById("saveBtn"); const content = document.getElementById("recipeEditor").value; const category = document.getElementById("categoryEditor").value;
-  btn.disabled = true; btn.innerText = "⏳";
-  await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ method: "update", name: currentEditingName, recipe: content, category: category }) });
-  await fetchRecipes(); btn.disabled = false; btn.innerText = "保存";
+function show(idx) {
+  const it = items[idx];
+  document.getElementById("mainPage").style.display = "none";
+  document.getElementById("detailPage").style.display = "block";
+  document.getElementById("dTitle").innerText = it[0];
+  document.getElementById("dEdit").value = it[1];
 }
 
-async function addRecipe() {
-  const input = document.getElementById("comboInput"); const name = input.value.trim(); if(!name) return;
-  recipes.unshift([name, "", "未設定"]); render(); input.value = "";
-  await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ method: "add", name: name }) });
-  fetchRecipes();
+async function save() {
+  const t = document.getElementById("dTitle").innerText;
+  const c = document.getElementById("dEdit").value;
+  fetch(URL, { method: "POST", body: JSON.stringify({ method: "update", name: t, recipe: c, category: "未設定" }), mode: 'no-cors' });
+  const it = items.find(i => i[0] === t); if(it) it[1] = c;
+  goBack();
 }
 
-async function deleteRecipe(index) {
-  if(!confirm(`削除しますか？`)) return;
-  const name = recipes[index][0]; recipes.splice(index, 1); render();
-  await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ method: "delete", name: name }) });
+async function del(idx) {
+  if(!confirm("削除しますか？")) return;
+  const n = items[idx][0]; items.splice(idx, 1); draw();
+  fetch(URL, { method: "POST", body: JSON.stringify({ method: "delete", name: n }), mode: 'no-cors' });
 }
 
-function backToList() { document.getElementById("mainPage").style.display = "block"; document.getElementById("detailPage").style.display = "none"; render(); }
-fetchRecipes();
+function goBack() { document.getElementById("mainPage").style.display = "block"; document.getElementById("detailPage").style.display = "none"; draw(); }
+function ts(e) { startX = e.touches[0].clientX; curCard = e.currentTarget; curCard.style.transition = "none"; }
+function tm(e) { let x = e.touches[0].clientX - startX; if(x < 0 && x > -100) curCard.style.transform = `translateX(${x}px)`; }
+function te(e) { curCard.style.transition = "transform 0.2s"; let x = e.changedTouches[0].clientX - startX; curCard.style.transform = x < -50 ? "translateX(-80px)" : "translateX(0)"; }
+
+load();
 </script>
 </body>
 </html>
