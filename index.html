@@ -99,10 +99,10 @@ body {
 <div id="toast" class="toast"></div>
 
 <script>
-// ===== ここを自分のものに書き換え！ =====
+// ===== 書き換え必須！ =====
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyhoaM6BQW6sJaaELhg-TB9fGpjCdqqMAyu9z6DQotTnVOGTINLJJGl-0HNuIae8FY2/exec";
 const GEMINI_API_KEY = "AIzaSyCDBLpr3fU7yXn_Yr-bEVys-huPjfmEyx8";
-// ===================================
+// ========================
 
 let recipes = [];
 let currentEditingName = "", startX = 0, currentItem = null;
@@ -154,14 +154,14 @@ async function handleAI() {
   btn.classList.add("loading"); closeAiPanel();
 
   try {
-    // 安定版の v1 エンドポイントを使用
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    // 解決策: URLを v1beta に、モデルを 1.5-flash に固定
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: [{ parts: [{ text: `「${text}」のレシピを【材料】【作り方】【ポイント】の形式で教えて。` }] }] })
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
-    const recipeText = data.candidates?.[0]?.content?.parts?.[0]?.text || "生成失敗";
+    const recipeText = data.candidates?.[0]?.content?.parts?.[0]?.text || "生成に失敗しました。";
 
     pendingName = text; pendingContent = recipeText;
     document.getElementById("aiPanelBody").innerHTML = `<div class="recipe-preview"><div class="recipe-preview-title">📋 ${text} のレシピ</div><div class="recipe-preview-body">${recipeText}</div><div class="preview-actions"><button class="preview-use-btn" onclick="applyRecipe()">追加して保存</button><button class="preview-discard-btn" onclick="closeAiPanel()">破棄</button></div></div>`;
