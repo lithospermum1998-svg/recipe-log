@@ -12,12 +12,7 @@
   --ai-purple: #6200ee; --danger: #ff3b30; --line: rgba(0,0,0,0.05);
 }
 * { box-sizing: border-box; }
-body {
-  margin: 0; background: var(--bg); color: var(--text-main);
-  font-family: -apple-system, sans-serif;
-  padding: calc(8px + env(safe-area-inset-top)) 12px 100px;
-  overflow-x: hidden;
-}
+body { margin: 0; background: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; padding: calc(8px + env(safe-area-inset-top)) 12px 100px; overflow-x: hidden; }
 .container { max-width: 430px; margin: 0 auto; }
 .header-row { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; }
 .section-title { font-size: 22px; font-weight: 800; }
@@ -42,13 +37,11 @@ body {
 <div class="container">
   <div id="mainPage">
     <div class="header-row"><div class="section-title">RECIPE LOG</div></div>
-    <div class="combo-area">
-      <div class="input-group">
-        <input type="text" id="comboInput" class="combo-input" placeholder="検索・相談・追加..." oninput="handleInput()">
-        <button id="aiBtn" class="ai-btn" onclick="askAiRecipe()">✨</button>
-        <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
-      </div>
-    </div>
+    <div class="combo-area"><div class="input-group">
+      <input type="text" id="comboInput" class="combo-input" placeholder="検索・相談・追加..." oninput="handleInput()">
+      <button id="aiBtn" class="ai-btn" onclick="askAiRecipe()">✨</button>
+      <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
+    </div></div>
     <div id="recipeList"><div class="loading">読み込み中...</div></div>
   </div>
   <div id="detailPage">
@@ -58,90 +51,50 @@ body {
     </div>
     <div id="detailTitle" class="section-title" style="margin-bottom:16px;"></div>
     <select id="categoryEditor" class="category-select">
-      <option value="未設定">カテゴリを選択</option>
-      <option value="肉料理">肉料理</option><option value="魚料理">魚料理</option>
-      <option value="野菜・サラダ">野菜・サラダ</option><option value="麺・ごはん">麺・ごはん</option>
-      <option value="デザート">デザート</option><option value="その他">その他</option>
+      <option value="未設定">カテゴリを選択</option><option value="肉料理">肉料理</option><option value="魚料理">魚料理</option><option value="野菜・サラダ">野菜・サラダ</option><option value="麺・ごはん">麺・ごはん</option><option value="デザート">デザート</option><option value="その他">その他</option>
     </select>
     <textarea id="recipeEditor" class="editor-textarea" placeholder="作り方をメモ..."></textarea>
   </div>
 </div>
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzzTb1-I7s55TNkD0zC3UiwgYQxWWUSKzwn0doXRSBwuhASJgz6PfiG4RB1udTEbfrw5w/exec";
-let recipes = [];
-let currentEditingName = "";
-let startX = 0;
-let currentItem = null;
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyNvHeEPewUOnq8FgYFjtqv6IRwR081OP5Ejg3Obm3HJ-w2759qxW2drAC8poQ1cVuqkw/exec";
+let recipes = []; let currentEditingName = ""; let startX = 0; let currentItem = null;
 
 async function fetchRecipes() {
-  try {
-    const res = await fetch(GAS_URL);
-    recipes = await res.json();
-    render();
-  } catch (e) { document.getElementById("recipeList").innerHTML = '<div class="loading">接続エラー</div>'; }
+  try { const res = await fetch(GAS_URL); recipes = await res.json(); render(); }
+  catch (e) { document.getElementById("recipeList").innerHTML = '<div class="loading">接続エラー</div>'; }
 }
 
 function handleInput() {
   const val = document.getElementById("comboInput").value.trim();
-  const addBtn = document.getElementById("addBtn");
-  const aiBtn = document.getElementById("aiBtn");
-  render();
+  const addBtn = document.getElementById("addBtn"); const aiBtn = document.getElementById("aiBtn"); render();
   const exactMatch = recipes.some(r => r[0] === val);
-  if (val.length > 0 && !exactMatch) {
-    addBtn.style.display = "block";
-    aiBtn.style.display = "block";
-  } else {
-    addBtn.style.display = "none";
-  }
+  if (val.length > 0 && !exactMatch) { addBtn.style.display = "block"; aiBtn.style.display = "block"; } else { addBtn.style.display = "none"; }
 }
 
 async function askAiRecipe() {
-  const input = document.getElementById("comboInput");
-  const text = input.value.trim();
-  if(!text) return;
-
-  const btn = document.getElementById("aiBtn");
-  const original = btn.innerText;
-  btn.disabled = true; btn.innerText = "⏳";
-
+  const input = document.getElementById("comboInput"); const text = input.value.trim(); if(!text) return;
+  const btn = document.getElementById("aiBtn"); const original = btn.innerText; btn.disabled = true; btn.innerText = "⏳";
   try {
-    const res = await fetch(GAS_URL, {
-      method: "POST",
-      body: JSON.stringify({ method: "ai_suggest", ingredients: text })
-    });
-    const result = await res.text();
-    if(result.startsWith("エラー")) throw new Error(result);
-
-    const lines = result.split('\n');
-    const aiTitle = lines[0] || text;
-    const aiContent = lines.slice(1).join('\n').trim();
-
+    const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "ai_suggest", ingredients: text }) });
+    const data = await res.json(); // JSONとして受け取る
+    const result = data.result;
+    const lines = result.split('\n'); const aiTitle = lines[0] || text; const aiContent = lines.slice(1).join('\n').trim();
     currentEditingName = aiTitle;
-    document.getElementById("mainPage").style.display = "none";
-    document.getElementById("detailPage").style.display = "block";
-    document.getElementById("detailTitle").innerText = aiTitle;
-    document.getElementById("recipeEditor").value = aiContent;
-    document.getElementById("categoryEditor").value = "未設定";
-    input.value = "";
+    document.getElementById("mainPage").style.display = "none"; document.getElementById("detailPage").style.display = "block";
+    document.getElementById("detailTitle").innerText = aiTitle; document.getElementById("recipeEditor").value = aiContent;
+    document.getElementById("categoryEditor").value = "未設定"; input.value = "";
   } catch (e) { alert("AIエラー: " + e.message); }
   finally { btn.disabled = false; btn.innerText = original; }
 }
 
 function render() {
-  const query = document.getElementById("comboInput").value.toLowerCase();
-  const list = document.getElementById("recipeList");
+  const query = document.getElementById("comboInput").value.toLowerCase(); const list = document.getElementById("recipeList");
   const filtered = recipes.filter(item => (item[0] && item[0].toLowerCase().includes(query)) || (item[2] && item[2].toLowerCase().includes(query)));
   list.innerHTML = filtered.map((item) => {
     const idx = recipes.findIndex(r => r[0] === item[0]);
-    return `
-      <div class="recipe-item-wrapper">
-        <div class="delete-action" onclick="deleteRecipe(${idx})">削除</div>
-        <div class="recipe-card" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)">
-          <span class="tag-badge">${item[2] || '未設定'}</span>
-          <div class="recipe-name" onclick="showDetail(${idx})">${item[0]}</div>
-        </div>
-      </div>
-    `}).join("");
+    return `<div class="recipe-item-wrapper"><div class="delete-action" onclick="deleteRecipe(${idx})">削除</div><div class="recipe-card" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)"><span class="tag-badge">${item[2] || '未設定'}</span><div class="recipe-name" onclick="showDetail(${idx})">${item[0]}</div></div></div>`
+  }).join("");
 }
 
 function handleTouchStart(e) { startX = e.touches[0].clientX; currentItem = e.currentTarget; currentItem.style.transition = "none"; }
@@ -150,39 +103,27 @@ function handleTouchEnd(e) { currentItem.style.transition = "transform 0.2s ease
 
 function showDetail(index) {
   const item = recipes[index]; currentEditingName = item[0];
-  document.getElementById("mainPage").style.display = "none";
-  document.getElementById("detailPage").style.display = "block";
-  document.getElementById("detailTitle").innerText = currentEditingName;
-  document.getElementById("recipeEditor").value = item[1] || "";
-  document.getElementById("categoryEditor").value = item[2] || "未設定";
-  window.scrollTo(0, 0);
+  document.getElementById("mainPage").style.display = "none"; document.getElementById("detailPage").style.display = "block";
+  document.getElementById("detailTitle").innerText = currentEditingName; document.getElementById("recipeEditor").value = item[1] || "";
+  document.getElementById("categoryEditor").value = item[2] || "未設定"; window.scrollTo(0, 0);
 }
 
 async function saveRecipe() {
-  const btn = document.getElementById("saveBtn");
-  const content = document.getElementById("recipeEditor").value;
-  const category = document.getElementById("categoryEditor").value;
+  const btn = document.getElementById("saveBtn"); const content = document.getElementById("recipeEditor").value; const category = document.getElementById("categoryEditor").value;
   btn.disabled = true; btn.innerText = "⏳";
   await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "update", name: currentEditingName, recipe: content, category: category }) });
-  await fetchRecipes();
-  btn.disabled = false; btn.innerText = "保存";
+  await fetchRecipes(); btn.disabled = false; btn.innerText = "保存";
 }
 
 async function addRecipe() {
-  const input = document.getElementById("comboInput");
-  const name = input.value.trim();
-  if(!name) return;
-  recipes.unshift([name, "", "未設定"]);
-  render(); input.value = "";
-  await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "add", name: name }) });
-  fetchRecipes();
+  const input = document.getElementById("comboInput"); const name = input.value.trim(); if(!name) return;
+  recipes.unshift([name, "", "未設定"]); render(); input.value = "";
+  await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "add", name: name }) }); fetchRecipes();
 }
 
 async function deleteRecipe(index) {
   if(!confirm(`削除しますか？`)) return;
-  const name = recipes[index][0];
-  recipes.splice(index, 1);
-  render();
+  const name = recipes[index][0]; recipes.splice(index, 1); render();
   await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ method: "delete", name: name }) });
 }
 
