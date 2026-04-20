@@ -16,6 +16,7 @@
       --accent: #ff9500;
       --danger: #ff3b30;
       --line: rgba(0, 0, 0, 0.06);
+      --ai: #30b96b;
       --shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
     }
 
@@ -30,9 +31,7 @@ html, body {
   overflow-x: hidden;
 }
 
-body {
-  padding: calc(8px + env(safe-area-inset-top)) 12px 100px;
-}
+body { padding: calc(8px + env(safe-area-inset-top)) 12px 100px; }
 
 .container { max-width: 430px; margin: 0 auto; }
 
@@ -73,6 +72,94 @@ body {
 }
 
 .add-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.ai-trigger-btn {
+  width: 50px; height: 50px; flex-shrink: 0;
+  background: var(--surface-1); border: 1.5px solid var(--line);
+  border-radius: 12px; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: background 0.15s, border-color 0.15s, transform 0.08s;
+  position: relative;
+}
+
+.ai-trigger-btn:active { transform: scale(0.97); }
+.ai-trigger-btn.loading { border-color: var(--ai); background: #f0fdf6; cursor: wait; }
+.ai-trigger-btn:disabled { opacity: 0.8; cursor: wait; }
+
+.ai-trigger-btn .spinner {
+  width: 18px; height: 18px;
+  border: 2.5px solid rgba(48,185,107,0.25);
+  border-top-color: var(--ai);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  display: none; position: absolute;
+}
+
+.ai-trigger-btn.loading .spinner { display: block; }
+.ai-trigger-btn.loading .ai-icon { opacity: 0; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#aiPanel {
+  display: none; margin-top: 8px;
+  background: var(--surface-1);
+  border: 1.5px solid rgba(48,185,107,0.22);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 6px 24px rgba(48,185,107,0.1);
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ai-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px 0;
+}
+
+.ai-panel-label {
+  font-size: 11px; font-weight: 800; color: var(--ai);
+  text-transform: uppercase; letter-spacing: 0.6px;
+}
+
+.ai-panel-close { font-size: 18px; color: var(--text-sub); cursor: pointer; padding: 4px 6px; }
+
+.suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px 14px; }
+
+.suggestion-chip {
+  background: #f0fdf6; border: 1.5px solid rgba(48,185,107,0.3);
+  color: #1a7a48; font-size: 14px; font-weight: 700;
+  padding: 8px 14px; border-radius: 20px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: transform 0.1s;
+}
+
+.suggestion-chip:active { transform: scale(0.96); }
+
+.recipe-preview { padding: 12px 14px 14px; }
+.recipe-preview-title { font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+
+.recipe-preview-body {
+  font-size: 14px; line-height: 1.75; color: var(--text-main);
+  white-space: pre-wrap; max-height: 300px; overflow-y: auto;
+  background: #fcfcfd; border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px;
+}
+
+.recipe-preview-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+.preview-use-btn {
+  flex: 1; background: var(--ai); border: none; color: #fff;
+  font-weight: 800; border-radius: 10px; padding: 11px; cursor: pointer; font-size: 14px;
+}
+
+.preview-discard-btn {
+  background: var(--surface-2); border: none; color: var(--text-sub);
+  font-weight: 700; border-radius: 10px; padding: 11px 16px; cursor: pointer; font-size: 14px;
+}
 
 .recipe-list { margin-top: 6px; }
 
@@ -132,9 +219,7 @@ body {
   margin-top: 40px; font-weight: 600; padding: 18px;
 }
 
-.empty-state strong {
-  display: block; color: var(--text-main); margin-bottom: 6px; font-size: 16px;
-}
+.empty-state strong { display: block; color: var(--text-main); margin-bottom: 6px; font-size: 16px; }
 
 .toast {
   position: fixed; bottom: calc(24px + env(safe-area-inset-bottom));
@@ -152,6 +237,7 @@ body {
 <body>
   <div class="container">
 
+```
 <div id="mainPage">
   <div class="header-row">
     <div class="section-title">RECIPE LOG</div>
@@ -160,8 +246,20 @@ body {
   <div class="combo-area">
     <div class="input-group">
       <input type="text" id="comboInput" class="combo-input"
-        placeholder="検索 / 料理名を追加..." autocomplete="off" />
+        placeholder="検索 / 料理名 / 食材..." autocomplete="off" />
       <button id="addBtn" class="add-btn" onclick="addRecipe()" type="button">追加</button>
+      <button class="ai-trigger-btn" id="aiBtn" onclick="handleAI()" title="AIに相談" type="button">
+        <span class="ai-icon">✨</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+
+    <div id="aiPanel">
+      <div class="ai-panel-header">
+        <div class="ai-panel-label">✦ AI提案</div>
+        <div class="ai-panel-close" onclick="closeAiPanel()">×</div>
+      </div>
+      <div id="aiPanelBody"></div>
     </div>
   </div>
 
@@ -187,6 +285,7 @@ body {
   </select>
   <textarea id="recipeEditor" class="editor-textarea" placeholder="作り方をメモ..."></textarea>
 </div>
+```
 
   </div>
 
@@ -200,6 +299,8 @@ body {
     let currentEditingName = "";
     let startX = 0, currentItem = null;
     let toastTimer = null;
+    let isAiLoading = false;
+    let pendingRecipeName = "", pendingRecipeContent = "";
 
     function escapeHtml(str = "") {
       return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
@@ -218,6 +319,7 @@ body {
       return recipes.some(r => safeText(r[0]).toLowerCase() === n);
     }
 
+    // ヘッダーなしでPOST（GASはContent-Type: application/jsonがあるとpreflightで弾く）
     async function apiRequest(payload) {
       const res = await fetch(GAS_URL, {
         method: "POST",
@@ -313,18 +415,19 @@ body {
       finally { btn.disabled = false; btn.innerText = "保存"; }
     }
 
-    async function addRecipe() {
+    async function addRecipe(name = null, content = "") {
       const input = document.getElementById("comboInput");
       const addBtn = document.getElementById("addBtn");
-      const recipeName = safeText(input.value);
+      const recipeName = safeText(name || input.value);
       if (!recipeName) return;
       if (isDuplicateName(recipeName)) { showToast("同名のレシピがすでにあります"); addBtn.style.display = "none"; return; }
       addBtn.disabled = true;
-      recipes.unshift([recipeName, "", "未設定"]);
+      recipes.unshift([recipeName, content, "未設定"]);
       render();
       try {
         await apiRequest({ method: "add", name: recipeName });
-        input.value = ""; addBtn.style.display = "none";
+        if (content) await apiRequest({ method: "update", name: recipeName, recipe: content, category: "未設定" });
+        if (!name) { input.value = ""; addBtn.style.display = "none"; }
         await fetchRecipes();
       } catch (e) {
         recipes = recipes.filter(r => r[0] !== recipeName); render();
@@ -347,6 +450,101 @@ body {
       currentEditingIndex = -1; currentEditingName = ""; render();
     }
 
+    // ===== Gemini AI（GAS経由）=====
+    async function callGemini(prompt) {
+      const res = await apiRequest({ method: "gemini", prompt });
+      const text = await res.text();
+      if (!text || text === "success") throw new Error("empty response");
+      return text;
+    }
+
+    function looksLikeIngredients(text) {
+      const hints = ["、","，",",","と","や","・","卵","肉","豚","鶏","牛","野菜","玉ねぎ","にんじん","じゃがいも","トマト","キャベツ","きのこ","豆腐","鮭","えび","チーズ","きゅうり","なす","ほうれん草","大根","ねぎ","しいたけ","もやし","ごぼう","れんこん","ブロッコリー"];
+      return hints.some(h => text.includes(h));
+    }
+
+    function setAiLoading(flag) {
+      const btn = document.getElementById("aiBtn");
+      isAiLoading = flag;
+      btn.classList.toggle("loading", flag);
+      btn.disabled = flag;
+    }
+
+    async function handleAI() {
+      const text = safeText(document.getElementById("comboInput").value);
+      if (!text) { showToast("食材または料理名を入力してください"); return; }
+      if (isAiLoading) return;
+      setAiLoading(true); closeAiPanel();
+
+      try {
+        if (looksLikeIngredients(text)) {
+          const prompt = `以下の食材から作れる料理を5〜7個提案してください。料理名のみをJSON配列で返してください。説明や前置きは不要です。\n食材: ${text}\n例: ["親子丼","野菜炒め","味噌汁","卵焼き","チャーハン"]`;
+          const raw = await callGemini(prompt);
+          const clean = raw.replace(/```json|```/g, "").trim();
+          const dishes = JSON.parse(clean);
+          if (!Array.isArray(dishes) || dishes.length === 0) throw new Error("invalid");
+          showChips(dishes.map(v => safeText(v)).filter(Boolean));
+        } else {
+          const prompt = `「${text}」のレシピを以下のフォーマットで作成してください。余計な前置きは不要です。\n\n【材料】（2人分）\n・材料と分量を箇条書き\n\n【作り方】\n1. 手順を番号付きで\n\n【ポイント】\n・コツや注意点を1〜2つ`;
+          const recipeText = await callGemini(prompt);
+          showRecipePreview(text, recipeText.trim());
+        }
+      } catch (e) {
+        showToast("AI接続に失敗しました");
+        console.error(e);
+      } finally { setAiLoading(false); }
+    }
+
+    function showChips(dishes) {
+      document.getElementById("aiPanelBody").innerHTML = `
+        <div class="suggestion-chips">
+          ${dishes.map(d => `<button type="button" class="suggestion-chip" data-name="${encodeURIComponent(d)}" onclick="chipTapped(decodeURIComponent(this.dataset.name))">＋ ${escapeHtml(d)}</button>`).join("")}
+        </div>`;
+      document.getElementById("aiPanel").style.display = "block";
+    }
+
+    async function chipTapped(name) {
+      document.getElementById("comboInput").value = name;
+      handleInput(); closeAiPanel();
+      if (isAiLoading) return;
+      setAiLoading(true);
+      try {
+        const prompt = `「${name}」のレシピを以下のフォーマットで作成してください。余計な前置きは不要です。\n\n【材料】（2人分）\n・材料と分量を箇条書き\n\n【作り方】\n1. 手順を番号付きで\n\n【ポイント】\n・コツや注意点を1〜2つ`;
+        const recipeText = await callGemini(prompt);
+        showRecipePreview(name, recipeText.trim());
+      } catch (e) { showToast("レシピ生成に失敗しました"); console.error(e); }
+      finally { setAiLoading(false); }
+    }
+
+    function showRecipePreview(name, content) {
+      pendingRecipeName = safeText(name); pendingRecipeContent = safeText(content);
+      document.getElementById("aiPanelBody").innerHTML = `
+        <div class="recipe-preview">
+          <div class="recipe-preview-title">📋 ${escapeHtml(pendingRecipeName)} のレシピ</div>
+          <div class="recipe-preview-body">${escapeHtml(pendingRecipeContent)}</div>
+          <div class="recipe-preview-actions">
+            <button class="preview-use-btn" type="button" onclick="applyRecipe()">追加して保存</button>
+            <button class="preview-discard-btn" type="button" onclick="closeAiPanel()">破棄</button>
+          </div>
+        </div>`;
+      document.getElementById("aiPanel").style.display = "block";
+    }
+
+    async function applyRecipe() {
+      if (!pendingRecipeName || !pendingRecipeContent) { showToast("追加するレシピがありません"); return; }
+      closeAiPanel();
+      await addRecipe(pendingRecipeName, pendingRecipeContent);
+      document.getElementById("comboInput").value = "";
+      document.getElementById("addBtn").style.display = "none";
+      pendingRecipeName = ""; pendingRecipeContent = "";
+      showToast("レシピを追加しました ✓");
+    }
+
+    function closeAiPanel() {
+      document.getElementById("aiPanel").style.display = "none";
+      document.getElementById("aiPanelBody").innerHTML = "";
+    }
+
     function showToast(msg) {
       const t = document.getElementById("toast");
       t.textContent = msg; t.classList.add("show");
@@ -356,7 +554,10 @@ body {
 
     document.getElementById("comboInput").addEventListener("input", handleInput);
     document.getElementById("comboInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") addRecipe();
+      if (e.key !== "Enter") return;
+      const val = safeText(e.target.value);
+      if (!val) return;
+      isDuplicateName(val) || looksLikeIngredients(val) ? handleAI() : addRecipe();
     });
 
     fetchRecipes();
