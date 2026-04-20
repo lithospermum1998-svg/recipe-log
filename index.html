@@ -152,7 +152,6 @@ body {
 <body>
   <div class="container">
 
-```
 <div id="mainPage">
   <div class="header-row">
     <div class="section-title">RECIPE LOG</div>
@@ -188,7 +187,6 @@ body {
   </select>
   <textarea id="recipeEditor" class="editor-textarea" placeholder="作り方をメモ..."></textarea>
 </div>
-```
 
   </div>
 
@@ -223,7 +221,6 @@ body {
     async function apiRequest(payload) {
       const res = await fetch(GAS_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error("Network error");
