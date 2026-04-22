@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" />
-  <title>RECIPE LOG DEBUG</title>
+  <title>RECIPE LOG</title>
   <style>
     :root {
       --bg: #f2f2f7;
@@ -55,6 +55,23 @@
       letter-spacing: 0.02em;
     }
 
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sub-btn {
+      background: var(--surface-2);
+      border: none;
+      color: var(--text-main);
+      font-weight: 800;
+      border-radius: 12px;
+      padding: 0 14px;
+      height: 40px;
+      cursor: pointer;
+    }
+
     .combo-area {
       position: sticky;
       top: calc(8px + env(safe-area-inset-top));
@@ -102,20 +119,10 @@
       box-shadow: var(--shadow);
     }
 
-    .add-btn:disabled {
+    .add-btn:disabled,
+    .sub-btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-    }
-
-    .sub-btn {
-      background: var(--surface-2);
-      border: none;
-      color: var(--text-main);
-      font-weight: 800;
-      border-radius: 12px;
-      padding: 0 14px;
-      height: 40px;
-      cursor: pointer;
     }
 
     .recipe-list {
@@ -139,7 +146,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      color: #fff;
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
@@ -225,18 +232,6 @@
       color: var(--text-main);
     }
 
-    .category-select {
-      width: 100%;
-      background: var(--surface-2);
-      border: none;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-      font-weight: 700;
-      color: var(--text-main);
-      outline: none;
-    }
-
     .detail-section {
       margin-bottom: 14px;
     }
@@ -247,6 +242,18 @@
       color: var(--text-sub);
       margin-bottom: 8px;
       letter-spacing: 0.03em;
+    }
+
+    .category-select {
+      width: 100%;
+      background: var(--surface-2);
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+      outline: none;
     }
 
     .image-panel,
@@ -283,6 +290,8 @@
       color: var(--text-sub);
       font-weight: 700;
       font-size: 14px;
+      padding: 20px;
+      text-align: center;
     }
 
     .image-actions,
@@ -309,7 +318,7 @@
 
     .image-upload-label {
       background: var(--accent);
-      color: white;
+      color: #fff;
       box-shadow: var(--shadow);
     }
 
@@ -335,11 +344,54 @@
       line-height: 1.6;
     }
 
+    .editor-textarea {
+      width: 100%;
+      min-height: 36vh;
+      background: var(--surface-1);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 17px;
+      line-height: 1.7;
+      resize: vertical;
+      outline: none;
+      color: var(--text-main);
+      box-shadow: var(--shadow);
+    }
+
+    .editor-textarea:focus {
+      border-color: rgba(255,149,0,0.45);
+      box-shadow: 0 0 0 4px rgba(255,149,0,0.08);
+    }
+
+    .debug-summary {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .debug-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .debug-summary::after {
+      content: "▼";
+      float: right;
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .debug-panel[open] .debug-summary::after {
+      content: "▲";
+    }
+
     .debug-status-line {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin: 12px 0 10px;
     }
 
     .debug-chip {
@@ -365,26 +417,7 @@
       white-space: pre-wrap;
       word-break: break-word;
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    }
-
-    .editor-textarea {
-      width: 100%;
-      min-height: 36vh;
-      background: var(--surface-1);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 16px;
-      font-size: 17px;
-      line-height: 1.7;
-      resize: vertical;
-      outline: none;
-      color: var(--text-main);
-      box-shadow: var(--shadow);
-    }
-
-    .editor-textarea:focus {
-      border-color: rgba(255,149,0,0.45);
-      box-shadow: 0 0 0 4px rgba(255,149,0,0.08);
+      margin-top: 12px;
     }
 
     .loading,
@@ -432,6 +465,7 @@
       max-width: calc(100vw - 30px);
       white-space: normal;
       text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
 
     .toast.show {
@@ -445,7 +479,9 @@
     <div id="mainPage">
       <div class="header-row">
         <div class="section-title">RECIPE LOG</div>
-        <button class="sub-btn" type="button" onclick="runDebugCheck()">接続確認</button>
+        <div class="top-actions">
+          <button class="sub-btn" type="button" onclick="runDebugCheck()">接続確認</button>
+        </div>
       </div>
 
       <div class="combo-area">
@@ -504,7 +540,7 @@
           </div>
 
           <div class="image-note">
-            1レシピ1枚まで。アップロード時は自動圧縮し、失敗時は下のデバッグログに理由を出します。
+            1レシピ1枚まで。アップロード時は自動圧縮します。
           </div>
         </div>
       </div>
@@ -515,23 +551,25 @@
       </div>
 
       <div class="detail-section">
-        <div class="detail-label">デバッグ</div>
-        <div class="debug-panel">
+        <details class="debug-panel">
+          <summary class="debug-summary">デバッグ情報</summary>
+
           <div class="debug-status-line" id="debugStatusLine">
             <div class="debug-chip">状態: 未確認</div>
           </div>
 
           <div class="debug-actions">
             <button class="debug-btn" type="button" onclick="runDebugCheck()">接続確認</button>
+            <button class="debug-btn" type="button" onclick="runVersionCheck()">バージョン確認</button>
             <button class="debug-btn" type="button" onclick="clearDebugLog()">ログ消去</button>
           </div>
 
           <div class="debug-note">
-            画像アップロード失敗時は、ここに API 応答やファイル情報を残します。
+            接続確認・画像アップロード失敗時の詳細をここに表示します。
           </div>
 
           <pre id="debugLog" class="debug-log">[debug] ready</pre>
-        </div>
+        </details>
       </div>
     </div>
 
@@ -540,7 +578,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyDWy14x0Ox5YE_Fru7ZPQ-ZMDUvayY2UiymBNRMyU_O-qlAnKJBFuew82-jsHPeVODVw/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwlC4LEB_PgxsWZkw_XAWayKXRvtisV8LvNjp-EaZAUXzdTYYwelb0H8OyzINHrX1P1SQ/exec";
 
     let recipes = [];
     let currentEditingIndex = -1;
@@ -590,16 +628,12 @@
       let line = `[${formatTime()}] ${message}`;
       if (data !== null) {
         try {
-          if (typeof data === "string") {
-            line += `\n${data}`;
-          } else {
-            line += `\n${JSON.stringify(data, null, 2)}`;
-          }
+          line += "\n" + (typeof data === "string" ? data : JSON.stringify(data, null, 2));
         } catch (e) {
-          line += `\n(data stringify failed)`;
+          line += "\n(data stringify failed)";
         }
       }
-      el.textContent += `\n${line}`;
+      el.textContent += "\n" + line;
       el.scrollTop = el.scrollHeight;
       console.log("[debug]", message, data);
     }
@@ -610,22 +644,17 @@
 
     function setDebugStatusChips(statusMap) {
       const line = document.getElementById("debugStatusLine");
-      const chips = [];
-
-      for (const [key, value] of Object.entries(statusMap)) {
-        chips.push(
+      line.innerHTML = Object.entries(statusMap)
+        .map(([key, value]) =>
           `<div class="debug-chip">${escapeHtml(key)}: ${escapeHtml(String(value))}</div>`
-        );
-      }
-
-      line.innerHTML = chips.join("");
+        )
+        .join("");
     }
 
     function showToast(msg) {
       const t = document.getElementById("toast");
       t.textContent = msg;
       t.classList.add("show");
-
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => t.classList.remove("show"), 2800);
     }
@@ -649,7 +678,6 @@
       });
 
       const text = await res.text();
-
       debugLog(`POST response status=${res.status}`, text);
 
       if (!res.ok) {
@@ -680,7 +708,6 @@
 
         const res = await fetch(GAS_URL, { cache: "no-store" });
         const raw = await res.text();
-
         debugLog(`GET recipes status=${res.status}`, raw);
 
         if (!res.ok) throw new Error("Fetch failed");
@@ -1149,6 +1176,17 @@
           error: (e.message || "unknown").slice(0, 30)
         });
         showToast((e && e.message) ? e.message.slice(0, 90) : "接続確認に失敗しました");
+      }
+    }
+
+    async function runVersionCheck() {
+      try {
+        const result = await apiRequest({ method: "version" });
+        debugLog("version", result);
+        showToast("version: " + result);
+      } catch (e) {
+        debugLog("runVersionCheck error", e.message || String(e));
+        showToast((e && e.message) ? e.message.slice(0, 90) : "バージョン確認に失敗しました");
       }
     }
 
