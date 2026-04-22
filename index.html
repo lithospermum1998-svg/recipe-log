@@ -884,13 +884,8 @@
       const btn = document.getElementById("saveBtn");
       const content = document.getElementById("recipeEditor").value.trim();
       const category = document.getElementById("categoryEditor").value;
-      const original = recipes[currentEditingIndex];
-      if (!original) return;
 
-      if (original[1] === content && original[2] === category) {
-        showToast("変更はありません");
-        return;
-      }
+      if (currentEditingIndex < 0 || !currentEditingName) return;
 
       btn.disabled = true;
       btn.innerText = "保存中...";
@@ -905,6 +900,7 @@
 
         recipes[currentEditingIndex][1] = content;
         recipes[currentEditingIndex][2] = category;
+
         showToast("保存しました ✓");
         render();
       } catch (e) {
