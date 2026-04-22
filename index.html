@@ -4,16 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" />
-  <title>RECIPE LOG</title>
+  <title>RECIPE LOG DEBUG</title>
   <style>
     :root {
       --bg: #f2f2f7;
       --surface-1: #ffffff;
       --surface-2: #e5e5ea;
+      --surface-3: #f8f8fa;
       --text-main: #1c1c1e;
       --text-sub: #8e8e93;
       --accent: #ff9500;
       --danger: #ff3b30;
+      --success: #34c759;
       --line: rgba(0, 0, 0, 0.06);
       --shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
     }
@@ -103,6 +105,17 @@
     .add-btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+    }
+
+    .sub-btn {
+      background: var(--surface-2);
+      border: none;
+      color: var(--text-main);
+      font-weight: 800;
+      border-radius: 12px;
+      padding: 0 14px;
+      height: 40px;
+      cursor: pointer;
     }
 
     .recipe-list {
@@ -236,7 +249,8 @@
       letter-spacing: 0.03em;
     }
 
-    .image-panel {
+    .image-panel,
+    .debug-panel {
       background: var(--surface-1);
       border: 1px solid var(--line);
       border-radius: 16px;
@@ -271,13 +285,16 @@
       font-size: 14px;
     }
 
-    .image-actions {
+    .image-actions,
+    .debug-actions {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .image-upload-label,
-    .image-remove-btn {
+    .image-remove-btn,
+    .debug-btn {
       flex: 1;
       border: none;
       border-radius: 12px;
@@ -301,19 +318,58 @@
       color: var(--text-main);
     }
 
+    .debug-btn {
+      background: #111827;
+      color: #fff;
+    }
+
     .image-upload-label input {
       display: none;
     }
 
-    .image-note {
+    .image-note,
+    .debug-note {
       margin-top: 10px;
       font-size: 12px;
       color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .debug-status-line {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .debug-chip {
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: var(--surface-3);
+      color: var(--text-main);
+      border: 1px solid var(--line);
+    }
+
+    .debug-log {
+      width: 100%;
+      min-height: 180px;
+      background: #0f172a;
+      color: #dbeafe;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     }
 
     .editor-textarea {
       width: 100%;
-      min-height: 42vh;
+      min-height: 36vh;
       background: var(--surface-1);
       border: 1px solid var(--line);
       border-radius: 16px;
@@ -372,8 +428,10 @@
       opacity: 0;
       transition: opacity 0.3s;
       pointer-events: none;
-      white-space: nowrap;
       z-index: 999;
+      max-width: calc(100vw - 30px);
+      white-space: normal;
+      text-align: center;
     }
 
     .toast.show {
@@ -387,6 +445,7 @@
     <div id="mainPage">
       <div class="header-row">
         <div class="section-title">RECIPE LOG</div>
+        <button class="sub-btn" type="button" onclick="runDebugCheck()">接続確認</button>
       </div>
 
       <div class="combo-area">
@@ -444,13 +503,35 @@
             <button class="image-remove-btn" type="button" onclick="removeImage()">画像削除</button>
           </div>
 
-          <div class="image-note">1レシピにつき1枚まで / 選び直すと上書きされます</div>
+          <div class="image-note">
+            1レシピ1枚まで。アップロード時は自動圧縮し、失敗時は下のデバッグログに理由を出します。
+          </div>
         </div>
       </div>
 
       <div class="detail-section">
         <div class="detail-label">メモ</div>
         <textarea id="recipeEditor" class="editor-textarea" placeholder="作り方をメモ..."></textarea>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-label">デバッグ</div>
+        <div class="debug-panel">
+          <div class="debug-status-line" id="debugStatusLine">
+            <div class="debug-chip">状態: 未確認</div>
+          </div>
+
+          <div class="debug-actions">
+            <button class="debug-btn" type="button" onclick="runDebugCheck()">接続確認</button>
+            <button class="debug-btn" type="button" onclick="clearDebugLog()">ログ消去</button>
+          </div>
+
+          <div class="debug-note">
+            画像アップロード失敗時は、ここに API 応答やファイル情報を残します。
+          </div>
+
+          <pre id="debugLog" class="debug-log">[debug] ready</pre>
+        </div>
       </div>
     </div>
 
@@ -459,8 +540,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    // あなたの Apps Script /exec URL に差し替えてください
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyDWy14x0Ox5YE_Fru7ZPQ-ZMDUvayY2UiymBNRMyU_O-qlAnKJBFuew82-jsHPeVODVw/exec";
+    const GAS_URL = "https://script.google.com/macros/s/REPLACE_WITH_YOUR_DEPLOYMENT_ID/exec";
 
     let recipes = [];
     let currentEditingIndex = -1;
@@ -494,16 +574,60 @@
           safeText(item[4])
         ];
       }
-      if (item && typeof item === "object") {
-        return [
-          safeText(item.name),
-          safeText(item.recipe),
-          safeText(item.category) || "未設定",
-          safeText(item.imageUrl),
-          safeText(item.imageFileId)
-        ];
-      }
       return ["", "", "未設定", "", ""];
+    }
+
+    function formatTime() {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      const ss = String(d.getSeconds()).padStart(2, "0");
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    function debugLog(message, data = null) {
+      const el = document.getElementById("debugLog");
+      let line = `[${formatTime()}] ${message}`;
+      if (data !== null) {
+        try {
+          if (typeof data === "string") {
+            line += `\n${data}`;
+          } else {
+            line += `\n${JSON.stringify(data, null, 2)}`;
+          }
+        } catch (e) {
+          line += `\n(data stringify failed)`;
+        }
+      }
+      el.textContent += `\n${line}`;
+      el.scrollTop = el.scrollHeight;
+      console.log("[debug]", message, data);
+    }
+
+    function clearDebugLog() {
+      document.getElementById("debugLog").textContent = "[debug] cleared";
+    }
+
+    function setDebugStatusChips(statusMap) {
+      const line = document.getElementById("debugStatusLine");
+      const chips = [];
+
+      for (const [key, value] of Object.entries(statusMap)) {
+        chips.push(
+          `<div class="debug-chip">${escapeHtml(key)}: ${escapeHtml(String(value))}</div>`
+        );
+      }
+
+      line.innerHTML = chips.join("");
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove("show"), 2800);
     }
 
     function isDuplicateName(name) {
@@ -516,7 +640,9 @@
       return recipes.findIndex(r => safeText(r[0]).toLowerCase() === n);
     }
 
-    async function apiRequest(payload) {
+    async function apiRequest(payload, options = {}) {
+      debugLog("POST request", payload);
+
       const res = await fetch(GAS_URL, {
         method: "POST",
         body: JSON.stringify(payload)
@@ -524,12 +650,22 @@
 
       const text = await res.text();
 
+      debugLog(`POST response status=${res.status}`, text);
+
       if (!res.ok) {
-        throw new Error("Network error");
+        throw new Error(`HTTP ${res.status}: ${text}`);
       }
 
       if (typeof text === "string" && text.startsWith("error:")) {
         throw new Error(text);
+      }
+
+      if (options.parseJson) {
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error("JSON parse failed: " + text);
+        }
       }
 
       return text;
@@ -540,16 +676,29 @@
       list.innerHTML = '<div class="loading">読み込み中...</div>';
 
       try {
+        debugLog("GET recipes start");
+
         const res = await fetch(GAS_URL, { cache: "no-store" });
+        const raw = await res.text();
+
+        debugLog(`GET recipes status=${res.status}`, raw);
+
         if (!res.ok) throw new Error("Fetch failed");
 
-        const json = await res.json();
+        let json;
+        try {
+          json = JSON.parse(raw);
+        } catch (e) {
+          throw new Error("一覧JSONの解析に失敗しました");
+        }
+
         recipes = (Array.isArray(json) ? json : [])
           .map(normalizeRecipe)
           .filter(r => r[0]);
 
         render();
       } catch (e) {
+        debugLog("GET recipes error", e.message || String(e));
         list.innerHTML = `
           <div class="empty-state">
             <strong>接続エラー</strong>
@@ -643,9 +792,7 @@
     }
 
     function handleTouchStart(e) {
-      if (openedCard && openedCard !== e.currentTarget) {
-        closeOpenedCard();
-      }
+      if (openedCard && openedCard !== e.currentTarget) closeOpenedCard();
       startX = e.touches[0].clientX;
       currentItem = e.currentTarget;
       currentItem.style.transition = "none";
@@ -661,7 +808,6 @@
 
     function handleTouchEnd(e) {
       if (!currentItem) return;
-
       currentItem.style.transition = "transform 0.2s ease-out";
       const mx = e.changedTouches[0].clientX - startX;
 
@@ -704,13 +850,13 @@
       document.getElementById("recipeEditor").value = item[1] || "";
       document.getElementById("categoryEditor").value = item[2] || "未設定";
       updateImagePreview(item[3] || "");
+      debugLog("showDetail", { name: item[0], imageUrl: item[3], imageFileId: item[4] });
     }
 
     async function saveRecipe() {
       const btn = document.getElementById("saveBtn");
       const content = document.getElementById("recipeEditor").value.trim();
       const category = document.getElementById("categoryEditor").value;
-
       const original = recipes[currentEditingIndex];
       if (!original) return;
 
@@ -732,12 +878,11 @@
 
         recipes[currentEditingIndex][1] = content;
         recipes[currentEditingIndex][2] = category;
-
         showToast("保存しました ✓");
         render();
       } catch (e) {
-        showToast("保存に失敗しました");
-        console.error(e);
+        debugLog("saveRecipe error", e.message || String(e));
+        showToast((e && e.message) ? e.message.slice(0, 90) : "保存に失敗しました");
       } finally {
         btn.disabled = false;
         btn.innerText = "保存";
@@ -764,7 +909,7 @@
           method: "add",
           name: recipeName,
           recipe: content,
-          category: category || "未設定"
+          category
         });
 
         if (!name) {
@@ -775,15 +920,13 @@
         await fetchRecipes();
 
         const idx = findRecipeIndexByName(recipeName);
-        if (idx >= 0) {
-          showDetail(idx);
-        }
+        if (idx >= 0) showDetail(idx);
 
         showToast("追加しました ✓");
         return true;
       } catch (e) {
-        showToast("追加に失敗しました");
-        console.error(e);
+        debugLog("addRecipe error", e.message || String(e));
+        showToast((e && e.message) ? e.message.slice(0, 90) : "追加に失敗しました");
         return false;
       } finally {
         addBtn.disabled = false;
@@ -802,8 +945,8 @@
         await fetchRecipes();
         showToast("削除しました");
       } catch (e) {
-        showToast("削除に失敗しました");
-        console.error(e);
+        debugLog("deleteRecipe error", e.message || String(e));
+        showToast((e && e.message) ? e.message.slice(0, 90) : "削除に失敗しました");
       }
     }
 
@@ -815,15 +958,6 @@
       document.getElementById("imageInput").value = "";
       closeOpenedCard();
       render();
-    }
-
-    function showToast(msg) {
-      const t = document.getElementById("toast");
-      t.textContent = msg;
-      t.classList.add("show");
-
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
     }
 
     function readFileAsDataURL(file) {
@@ -870,17 +1004,33 @@
       ctx.fillRect(0, 0, width, height);
       ctx.drawImage(img, 0, 0, width, height);
 
+      const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+
       return {
+        originalName: file.name || "image",
+        originalSize: file.size || 0,
+        width,
+        height,
         fileName: (file.name || "recipe").replace(/\.[^.]+$/, "") + ".jpg",
         mimeType: "image/jpeg",
-        dataUrl: canvas.toDataURL("image/jpeg", quality)
+        dataUrl: compressedDataUrl,
+        estimatedBytes: Math.round((compressedDataUrl.length * 3) / 4)
       };
+    }
+
+    function setUploadUiBusy(flag) {
+      const label = document.getElementById("imageUploadLabel");
+      label.style.opacity = flag ? "0.7" : "1";
+      label.style.pointerEvents = flag ? "none" : "auto";
+      label.childNodes[0].nodeValue = flag ? "アップロード中..." : "画像を選択";
     }
 
     async function handleImageSelected(e) {
       if (isUploadingImage) return;
+
       if (currentEditingIndex < 0 || !currentEditingName) {
-        showToast("先にレシピを保存してください");
+        showToast("先にレシピを作成してください");
+        debugLog("upload blocked", "currentEditingName is empty");
         e.target.value = "";
         return;
       }
@@ -890,31 +1040,48 @@
 
       if (!file.type.startsWith("image/")) {
         showToast("画像ファイルを選択してください");
+        debugLog("upload blocked", { type: file.type, name: file.name });
         e.target.value = "";
         return;
       }
 
       isUploadingImage = true;
-      const uploadLabel = document.getElementById("imageUploadLabel");
-      const originalLabelText = uploadLabel.firstChild.textContent;
-      uploadLabel.firstChild.textContent = "アップロード中...";
+      setUploadUiBusy(true);
 
       try {
-        const resized = await resizeImageFile(file, 1600, 0.82);
-        const base64Data = resized.dataUrl.split(",")[1];
+        debugLog("selected file", {
+          name: file.name,
+          type: file.type,
+          size: file.size
+        });
 
-        const raw = await apiRequest({
+        const resized = await resizeImageFile(file, 1600, 0.82);
+
+        debugLog("resized image", {
+          fileName: resized.fileName,
+          mimeType: resized.mimeType,
+          width: resized.width,
+          height: resized.height,
+          estimatedBytes: resized.estimatedBytes
+        });
+
+        const base64Data = resized.dataUrl.split(",")[1];
+        if (!base64Data) {
+          throw new Error("画像データの生成に失敗しました");
+        }
+
+        const json = await apiRequest({
           method: "uploadImage",
           name: currentEditingName,
           fileName: resized.fileName,
           mimeType: resized.mimeType,
           base64Data
-        });
+        }, { parseJson: true });
 
-        const json = JSON.parse(raw);
+        debugLog("uploadImage parsed response", json);
 
-        if (!json.imageUrl) {
-          throw new Error("invalid upload response");
+        if (!json || !json.success || !json.imageUrl) {
+          throw new Error("アップロード応答が不正です");
         }
 
         recipes[currentEditingIndex][3] = json.imageUrl || "";
@@ -924,12 +1091,12 @@
         render();
         showToast("画像を保存しました ✓");
       } catch (err) {
-        console.error(err);
-        showToast("画像の保存に失敗しました");
+        debugLog("handleImageSelected error", err.message || String(err));
+        showToast((err && err.message) ? err.message.slice(0, 90) : "画像の保存に失敗しました");
       } finally {
-        uploadLabel.firstChild.textContent = originalLabelText;
         document.getElementById("imageInput").value = "";
         isUploadingImage = false;
+        setUploadUiBusy(false);
       }
     }
 
@@ -956,8 +1123,32 @@
         render();
         showToast("画像を削除しました");
       } catch (err) {
-        console.error(err);
-        showToast("画像の削除に失敗しました");
+        debugLog("removeImage error", err.message || String(err));
+        showToast((err && err.message) ? err.message.slice(0, 90) : "画像の削除に失敗しました");
+      }
+    }
+
+    async function runDebugCheck() {
+      try {
+        const result = await apiRequest({ method: "debugStatus" }, { parseJson: true });
+        debugLog("debugStatus", result);
+
+        setDebugStatusChips({
+          webapp: result.ok ? "OK" : "NG",
+          sheet: result.sheetAccessible ? "OK" : "NG",
+          folder: result.folderAccessible ? "OK" : "NG",
+          folderId: result.folderIdSet ? "SET" : "EMPTY",
+          rows: result.rowCount
+        });
+
+        showToast(result.ok ? "接続確認OK" : "接続確認で問題があります");
+      } catch (e) {
+        debugLog("runDebugCheck error", e.message || String(e));
+        setDebugStatusChips({
+          webapp: "NG",
+          error: (e.message || "unknown").slice(0, 30)
+        });
+        showToast((e && e.message) ? e.message.slice(0, 90) : "接続確認に失敗しました");
       }
     }
 
@@ -982,6 +1173,7 @@
     document.getElementById("imageInput").addEventListener("change", handleImageSelected);
 
     fetchRecipes();
+    runDebugCheck();
   </script>
 </body>
 </html>
