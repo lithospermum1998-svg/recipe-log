@@ -13,7 +13,7 @@
       --surface-3: #e5e5ea;
       --text-main: #1c1c1e;
       --text-sub: #8e8e93;
-      --accent: #fca311; /* こだわりのオレンジ */
+      --accent: #fca311; 
       --danger: #ff3b30;
       --success: #34c759;
       --line: rgba(0, 0, 0, 0.08);
@@ -34,7 +34,7 @@
     }
 
     body {
-      padding: calc(16px + env(safe-area-inset-top)) 16px 100px;
+      padding: calc(16px + env(safe-area-inset-top)) 12px 100px;
     }
 
     .container {
@@ -47,21 +47,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 24px 0 20px;
+      margin: 16px 0 16px;
       gap: 12px;
     }
 
     .section-title {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 900;
       letter-spacing: 0.03em;
       color: var(--text-main);
-    }
-
-    .top-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
     }
 
     .sub-btn {
@@ -69,10 +63,10 @@
       border: none;
       color: var(--text-main);
       font-weight: 700;
-      border-radius: 12px;
-      padding: 0 14px;
-      height: 38px;
-      font-size: 13px;
+      border-radius: 10px;
+      padding: 0 12px;
+      height: 34px;
+      font-size: 12px;
       cursor: pointer;
     }
 
@@ -84,13 +78,12 @@
       background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      padding: 10px 0 16px;
-      margin: 0 -4px;
+      padding: 8px 0 12px;
     }
 
     .input-group {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
     }
 
@@ -99,9 +92,9 @@
       min-width: 0;
       background: var(--surface-2);
       border: 1px solid transparent;
-      border-radius: 14px;
-      padding: 14px 16px;
-      font-size: 16px;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
       outline: none;
       color: var(--text-main);
       transition: all 0.2s;
@@ -118,26 +111,27 @@
       border: none;
       color: #fff;
       font-weight: 800;
-      border-radius: 14px;
-      padding: 0 20px;
-      height: 48px;
+      border-radius: 12px;
+      padding: 0 16px;
+      height: 44px;
       cursor: pointer;
       display: none;
       box-shadow: var(--shadow);
+      font-size: 14px;
     }
 
-    /* Grid List */
+    /* Grid List (3列表示) */
     .recipe-list {
       margin-top: 8px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(3, 1fr); /* 3列に固定 */
+      gap: 8px; /* 列を増やしたので隙間を少し狭く */
     }
 
     .recipe-item-wrapper {
       position: relative;
       background-color: var(--danger);
-      border-radius: 18px;
+      border-radius: 14px;
       overflow: hidden;
     }
 
@@ -146,12 +140,12 @@
       right: 0;
       top: 0;
       bottom: 0;
-      width: 70px;
+      width: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 800;
       cursor: pointer;
     }
@@ -170,7 +164,7 @@
 
     .recipe-thumb {
       width: 100%;
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 1 / 1; /* 3列は正方形に近い方が綺麗 */
       object-fit: cover;
       background: var(--surface-2);
       border-bottom: 1px solid var(--line);
@@ -180,31 +174,39 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
+      font-size: 20px;
       background: #fafafa;
     }
 
     .recipe-text-wrap {
-      padding: 12px;
+      padding: 8px;
       flex: 1;
     }
 
     .tag-badge {
       display: inline-block;
-      font-size: 10px;
+      font-size: 8px; /* 3列用に最小化 */
       font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 6px;
+      padding: 2px 6px;
+      border-radius: 4px;
       background: var(--surface-2);
       color: var(--text-sub);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 100%;
+      text-overflow: ellipsis;
     }
 
     .recipe-name {
-      font-size: 16px;
+      font-size: 13px; /* 3列用に小さく */
       font-weight: 700;
-      line-height: 1.4;
+      line-height: 1.3;
       cursor: pointer;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     /* Detail Page */
@@ -213,19 +215,20 @@
     .back-btn {
       background: var(--surface-2);
       border: none;
-      padding: 10px 16px;
-      border-radius: 12px;
+      padding: 8px 14px;
+      border-radius: 10px;
       font-weight: 700;
       color: var(--text-main);
+      font-size: 14px;
     }
 
-    .detail-section { margin-bottom: 24px; }
+    .detail-section { margin-bottom: 20px; }
 
     .detail-label {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       color: var(--text-sub);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       text-transform: uppercase;
     }
 
@@ -233,8 +236,8 @@
       width: 100%;
       background: var(--surface-2);
       border: 1px solid transparent;
-      padding: 14px;
-      border-radius: 12px;
+      padding: 12px;
+      border-radius: 10px;
       font-weight: 700;
       outline: none;
     }
@@ -242,8 +245,8 @@
     .image-panel {
       background: var(--surface-1);
       border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
+      border-radius: 16px;
+      padding: 14px;
       box-shadow: var(--shadow);
     }
 
@@ -251,7 +254,7 @@
       width: 100%;
       aspect-ratio: 16 / 10;
       background: #f9f9fb;
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -265,10 +268,10 @@
 
     .image-upload-label, .image-remove-btn {
       flex: 1;
-      height: 44px;
-      border-radius: 12px;
+      height: 40px;
+      border-radius: 10px;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 13px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -281,11 +284,11 @@
 
     .editor-textarea {
       width: 100%;
-      min-height: 300px;
+      min-height: 250px;
       border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
-      font-size: 16px;
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 15px;
       line-height: 1.6;
       outline: none;
       box-shadow: var(--shadow);
@@ -299,48 +302,43 @@
       transform: translateX(-50%);
       background: rgba(0,0,0,0.85);
       color: #fff;
-      padding: 12px 24px;
-      border-radius: 30px;
-      font-size: 14px;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
       opacity: 0;
       transition: opacity 0.3s;
       z-index: 1000;
     }
     .toast.show { opacity: 1; }
 
-    /* Debug */
-    .debug-panel { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 20px; }
-    .debug-log { background: #f2f2f7; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 11px; overflow: auto; max-height: 150px; }
+    .debug-panel { margin-top: 30px; border-top: 1px solid var(--line); padding-top: 16px; }
+    .debug-log { background: #f2f2f7; padding: 10px; border-radius: 10px; font-family: monospace; font-size: 10px; overflow: auto; max-height: 120px; }
 
     .loading { text-align: center; padding: 40px; color: var(--text-sub); }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Main Page -->
     <div id="mainPage">
       <div class="header-row">
         <div class="section-title">RECIPE LOG</div>
-        <div class="top-actions">
-          <button class="sub-btn" onclick="runDebugCheck()">接続確認</button>
-        </div>
+        <button class="sub-btn" onclick="runDebugCheck()">接続確認</button>
       </div>
       <div class="combo-area">
         <div class="input-group">
-          <input type="text" id="comboInput" class="combo-input" placeholder="検索または新規作成..." autocomplete="off" />
+          <input type="text" id="comboInput" class="combo-input" placeholder="検索・追加..." autocomplete="off" />
           <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
         </div>
       </div>
       <div id="recipeList" class="recipe-list"></div>
     </div>
 
-    <!-- Detail Page -->
     <div id="detailPage">
       <div class="header-row">
         <button class="back-btn" onclick="backToList()">← 戻る</button>
-        <button id="saveBtn" class="add-btn" style="display:block; height:38px;" onclick="saveRecipe()">保存</button>
+        <button id="saveBtn" class="add-btn" style="display:block; height:36px;" onclick="saveRecipe()">保存</button>
       </div>
-      <div id="detailTitle" class="section-title" style="margin-bottom:20px;"></div>
+      <div id="detailTitle" class="section-title" style="margin-bottom:16px;"></div>
       <div class="detail-section">
         <div class="detail-label">カテゴリ</div>
         <select id="categoryEditor" class="category-select">
@@ -371,7 +369,7 @@
         <textarea id="recipeEditor" class="editor-textarea" placeholder="レシピを入力..."></textarea>
       </div>
       <details class="debug-panel">
-        <summary style="font-size: 12px; color: #888;">Debug Information</summary>
+        <summary style="font-size: 11px; color: #888;">Debug Log</summary>
         <pre id="debugLog" class="debug-log"></pre>
       </details>
     </div>
@@ -388,21 +386,17 @@
 
     async function apiRequest(payload) {
       const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
-      const text = await res.text();
-      if (!res.ok) throw new Error(text);
-      return text;
+      return await res.text();
     }
 
     async function fetchRecipes() {
       const list = document.getElementById("recipeList");
-      list.innerHTML = '<div class="loading">読み込み中...</div>';
+      list.innerHTML = '<div class="loading">...</div>';
       try {
         const res = await fetch(GAS_URL, { cache: "no-store" });
         recipes = await res.json();
         render();
-      } catch (e) {
-        showToast("読み込み失敗");
-      }
+      } catch (e) { showToast("読み込み失敗"); }
     }
 
     function render() {
@@ -427,12 +421,12 @@
     function ts(e) { startX = e.touches[0].clientX; currentItem = e.currentTarget; currentItem.style.transition = "none"; }
     function tm(e) { 
       let mx = e.touches[0].clientX - startX; 
-      if (mx < 0 && mx > -80) currentItem.style.transform = `translateX(${mx}px)`; 
+      if (mx < 0 && mx > -60) currentItem.style.transform = `translateX(${mx}px)`; 
     }
     function te(e) {
       currentItem.style.transition = "transform 0.3s ease";
       let mx = e.changedTouches[0].clientX - startX;
-      currentItem.style.transform = mx < -40 ? "translateX(-70px)" : "translateX(0)";
+      currentItem.style.transform = mx < -30 ? "translateX(-50px)" : "translateX(0)";
     }
 
     function showDetail(i) {
@@ -456,8 +450,7 @@
     }
 
     async function saveRecipe() {
-      const btn = document.getElementById("saveBtn");
-      btn.disabled = true;
+      const btn = document.getElementById("saveBtn"); btn.disabled = true;
       try {
         await apiRequest({
           method: "update",
@@ -491,8 +484,7 @@
     }
 
     async function handleImage(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+      const file = e.target.files[0]; if (!file) return;
       showToast("アップロード中...");
       const reader = new FileReader();
       reader.onload = async (ev) => {
@@ -507,7 +499,7 @@
           });
           showToast("画像保存完了");
           showDetail(currentEditingIndex);
-        } catch (e) { showToast("アップロード失敗"); }
+        } catch (e) { showToast("失敗"); }
       };
       reader.readAsDataURL(file);
     }
@@ -519,12 +511,10 @@
     }
 
     document.getElementById("comboInput").addEventListener("input", () => {
-      const val = document.getElementById("comboInput").value;
-      document.getElementById("addBtn").style.display = val ? "block" : "none";
+      document.getElementById("addBtn").style.display = document.getElementById("comboInput").value ? "block" : "none";
       render();
     });
     document.getElementById("imageInput").addEventListener("change", handleImage);
-
     fetchRecipes();
   </script>
 </body>
