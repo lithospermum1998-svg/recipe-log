@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#121212" />
   <title>RECIPE LOG</title>
   <style>
     :root {
-      --bg: #f2f2f7;
-      --surface-1: #ffffff;
-      --surface-2: #e5e5ea;
-      --surface-3: #f8f8fa;
-      --text-main: #1c1c1e;
-      --text-sub: #8e8e93;
-      --accent: #ff9500;
-      --danger: #ff3b30;
-      --success: #34c759;
-      --line: rgba(0, 0, 0, 0.06);
-      --shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+      --bg: #121212; /* 深いグレー */
+      --surface-1: #1f1f1f; /* カードやパネルの背景 */
+      --surface-2: #2c2c2c; /* 入力フォーム、ボタンの背景 */
+      --surface-3: #3a3a3a; /* デバッグチップなどの背景 */
+      --text-main: #fdfdfd; /* メインテキスト */
+      --text-sub: #a0a0a0; /* サブテキスト */
+      --accent: #fca311; /* より鮮やかでダークに映えるオレンジ */
+      --danger: #ff4d4f; /* 危険、削除 */
+      --success: #52c41a; /* 成功 */
+      --line: rgba(255, 255, 255, 0.08); /* 区切り線 */
+      --shadow: 0 8px 30px rgba(0, 0, 0, 0.3); /* よりモダンで深い影 */
+      --font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "メイリオ", sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -27,13 +28,17 @@
       padding: 0;
       background: var(--bg);
       color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+      font-family: var(--font-family);
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      /* 背景に微細なテクスチャを追加 */
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4eJFAAAAVFBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAtAAAAAXRSTlMAQObYZgAAADFJREFUeNpjYGRkYmBmYWRiZmBmYWRiZmBmYWRiZmBmYWRiZmBmYWRiZmBmYWRiZmBmYWRiZmBmYWRiZmdmAAAAMXp5AAA=');
+      background-repeat: repeat;
+      background-size: 50px 50px;
     }
 
     body {
-      padding: calc(8px + env(safe-area-inset-top)) 12px 100px;
+      padding: calc(16px + env(safe-area-inset-top)) 16px 100px; /* パディングを少し広く */
     }
 
     .container {
@@ -41,23 +46,25 @@
       margin: 0 auto;
     }
 
+    /* ヘッダー */
     .header-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 24px 0 16px;
-      gap: 10px;
+      margin: 32px 0 24px; /* マージンを広く */
+      gap: 12px;
     }
 
     .section-title {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: 0.02em;
+      font-size: 28px; /* 大きく */
+      font-weight: 900; /* 極太 */
+      letter-spacing: 0.05em; /* 文字間隔を広く */
+      color: var(--accent); /* ブランドカラーに */
     }
 
     .top-actions {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
     }
 
@@ -65,24 +72,31 @@
       background: var(--surface-2);
       border: none;
       color: var(--text-main);
-      font-weight: 800;
-      border-radius: 12px;
-      padding: 0 14px;
-      height: 40px;
+      font-weight: 700;
+      border-radius: 14px;
+      padding: 0 16px;
+      height: 44px;
       cursor: pointer;
+      transition: background 0.2s;
     }
+    .sub-btn:hover { background: var(--surface-3); }
 
+    /* 入力エリア */
     .combo-area {
       position: sticky;
-      top: calc(8px + env(safe-area-inset-top));
+      top: calc(16px + env(safe-area-inset-top));
       z-index: 100;
-      background: linear-gradient(to bottom, var(--bg) 88%, rgba(242,242,247,0));
-      padding-bottom: 10px;
+      /* 背景をグラスモーフィズム効果に */
+      background: rgba(18, 18, 18, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 10px 0 16px;
+      border-bottom: 1px solid var(--line);
     }
 
     .input-group {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
     }
 
@@ -91,33 +105,37 @@
       min-width: 0;
       background: var(--surface-1);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 16px;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 17px;
       outline: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       color: var(--text-main);
       transition: border-color 0.15s, box-shadow 0.15s;
+      /* 内側に微細なグラデーション背景を追加 */
+      background-image: linear-gradient(135deg, rgba(31,31,31,1) 0%, rgba(31,31,31,0.5) 100%);
     }
 
     .combo-input:focus {
-      border-color: rgba(255,149,0,0.5);
-      box-shadow: 0 0 0 4px rgba(255,149,0,0.08);
+      border-color: rgba(252,163,17,0.6);
+      box-shadow: 0 0 0 5px rgba(252,163,17,0.15);
     }
 
     .add-btn {
       background: var(--accent);
       border: none;
-      color: #fff;
+      color: #000; /* 黒字に */
       font-weight: 800;
-      border-radius: 12px;
-      padding: 0 20px;
-      height: 50px;
+      border-radius: 16px;
+      padding: 0 24px;
+      height: 56px; /* 少し大きく */
       cursor: pointer;
       white-space: nowrap;
       display: none;
       box-shadow: var(--shadow);
+      transition: transform 0.2s, background 0.2s;
     }
+    .add-btn:hover { background: #ffb13a; transform: translateY(-2px); }
+    .add-btn:active { transform: translateY(0); }
 
     .add-btn:disabled,
     .sub-btn:disabled {
@@ -125,16 +143,21 @@
       cursor: not-allowed;
     }
 
+    /* レシピリスト (グリッド) */
     .recipe-list {
-      margin-top: 6px;
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); /* グリッドレイアウトに */
+      gap: 16px;
     }
 
     .recipe-item-wrapper {
       position: relative;
-      margin-bottom: 10px;
       background-color: var(--danger);
-      border-radius: 16px;
+      border-radius: 20px; /* 角丸を大きく */
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     .delete-action {
@@ -151,73 +174,84 @@
       font-weight: 800;
       cursor: pointer;
       user-select: none;
+      /* 削除アイコンとテキストを重ねる */
+      background: rgba(255, 77, 79, 0.9);
+      flex-direction: column;
+      gap: 4px;
+    }
+    .delete-action::before {
+      content: "🗑";
+      font-size: 20px;
     }
 
     .recipe-card {
       position: relative;
       z-index: 2;
       background: var(--surface-1);
-      padding: 14px;
       transition: transform 0.2s ease-out;
       box-shadow: var(--shadow);
-      min-height: 86px;
       touch-action: pan-y;
+      /* カード全体のレイアウトを変更 */
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
     }
 
     .recipe-card-inner {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column; /* 縦並びに */
     }
 
     .recipe-thumb {
-      width: 72px;
-      height: 72px;
-      border-radius: 14px;
+      width: 100%; /* 横幅いっぱい */
+      aspect-ratio: 16 / 10; /* 画像のアスペクト比を固定 */
       object-fit: cover;
       background: #ececf1;
-      flex-shrink: 0;
-      border: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
     }
 
     .recipe-thumb-placeholder {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 32px;
       color: var(--text-sub);
     }
 
-    .recipe-text {
+    .recipe-text-wrap {
+      padding: 12px 16px; /* テキスト部分にパディング */
       flex: 1;
-      min-width: 0;
     }
 
     .tag-badge {
       display: inline-block;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 800;
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 999px;
-      background: #f1f1f5;
-      color: var(--text-sub);
-      margin-bottom: 8px;
+      background: var(--surface-2);
+      color: var(--text-main);
+      margin-bottom: 10px;
       width: fit-content;
+      letter-spacing: 0.02em;
     }
 
     .recipe-name {
-      font-size: 17px;
+      font-size: 18px; /* 少し大きく */
       font-weight: 700;
       cursor: pointer;
       word-break: break-word;
+      line-height: 1.3;
+      color: var(--text-main);
     }
 
     .recipe-sub {
-      margin-top: 6px;
+      margin-top: 8px;
       font-size: 12px;
       color: var(--text-sub);
     }
 
+    /* 詳細ページ */
     #detailPage {
       display: none;
     }
@@ -226,57 +260,64 @@
       background: var(--surface-2);
       border: none;
       padding: 10px 18px;
-      border-radius: 12px;
+      border-radius: 14px;
       font-weight: 700;
       cursor: pointer;
       color: var(--text-main);
+      transition: background 0.2s;
     }
+    .back-btn:hover { background: var(--surface-3); }
 
     .detail-section {
-      margin-bottom: 14px;
+      margin-bottom: 20px;
     }
 
     .detail-label {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 800;
       color: var(--text-sub);
-      margin-bottom: 8px;
-      letter-spacing: 0.03em;
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase; /* 大文字に */
     }
 
     .category-select {
       width: 100%;
       background: var(--surface-2);
       border: none;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 12px;
+      padding: 14px;
+      border-radius: 14px;
+      margin-bottom: 16px;
       font-weight: 700;
       color: var(--text-main);
       outline: none;
+      transition: background 0.2s;
     }
+    .category-select:hover { background: var(--surface-3); }
 
     .image-panel,
     .debug-panel {
       background: var(--surface-1);
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: 20px;
+      padding: 18px;
       box-shadow: var(--shadow);
-      margin-bottom: 14px;
+      margin-bottom: 20px;
     }
 
+    /* 画像プレビュー部分をより没入感のあるデザインに */
     .image-preview-wrap {
       width: 100%;
-      aspect-ratio: 4 / 3;
-      background: #f6f6f8;
+      aspect-ratio: 16 / 11;
+      background: #1a1a1a;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: 16px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+      position: relative;
     }
 
     .image-preview {
@@ -289,15 +330,23 @@
     .image-empty {
       color: var(--text-sub);
       font-weight: 700;
-      font-size: 14px;
+      font-size: 15px;
       padding: 20px;
       text-align: center;
+      /* 空の状態にアイコンを追加 */
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .image-empty::before {
+      content: "📷";
+      font-size: 32px;
     }
 
     .image-actions,
     .debug-actions {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -306,31 +355,35 @@
     .debug-btn {
       flex: 1;
       border: none;
-      border-radius: 12px;
-      height: 44px;
+      border-radius: 14px;
+      height: 48px;
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 14px;
+      transition: transform 0.2s, background 0.2s;
     }
 
     .image-upload-label {
       background: var(--accent);
-      color: #fff;
+      color: #000;
       box-shadow: var(--shadow);
     }
+    .image-upload-label:hover { background: #ffb13a; transform: translateY(-2px); }
 
     .image-remove-btn {
       background: var(--surface-2);
       color: var(--text-main);
     }
+    .image-remove-btn:hover { background: var(--surface-3); }
 
     .debug-btn {
-      background: #111827;
+      background: #262626;
       color: #fff;
     }
+    .debug-btn:hover { background: #333333; }
 
     .image-upload-label input {
       display: none;
@@ -338,38 +391,44 @@
 
     .image-note,
     .debug-note {
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 12px;
       color: var(--text-sub);
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     .editor-textarea {
       width: 100%;
-      min-height: 36vh;
+      min-height: 38vh;
       background: var(--surface-1);
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 16px;
+      border-radius: 20px;
+      padding: 20px;
       font-size: 17px;
-      line-height: 1.7;
+      line-height: 1.8;
       resize: vertical;
       outline: none;
       color: var(--text-main);
       box-shadow: var(--shadow);
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .editor-textarea:focus {
-      border-color: rgba(255,149,0,0.45);
-      box-shadow: 0 0 0 4px rgba(255,149,0,0.08);
+      border-color: rgba(252,163,17,0.6);
+      box-shadow: 0 0 0 5px rgba(252,163,17,0.15);
     }
 
     .debug-summary {
       margin: 0;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 800;
       cursor: pointer;
       list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
     }
 
     .debug-summary::-webkit-details-marker {
@@ -378,7 +437,6 @@
 
     .debug-summary::after {
       content: "▼";
-      float: right;
       font-size: 11px;
       color: var(--text-sub);
     }
@@ -389,16 +447,16 @@
 
     .debug-status-line {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin: 12px 0 10px;
+      margin: 16px 0 12px;
     }
 
     .debug-chip {
       font-size: 12px;
       font-weight: 800;
       border-radius: 999px;
-      padding: 6px 10px;
+      padding: 6px 12px;
       background: var(--surface-3);
       color: var(--text-main);
       border: 1px solid var(--line);
@@ -406,66 +464,71 @@
 
     .debug-log {
       width: 100%;
-      min-height: 180px;
-      background: #0f172a;
-      color: #dbeafe;
-      border-radius: 14px;
-      padding: 12px;
+      min-height: 200px;
+      background: #0f0f0f;
+      color: #34c759; /* 成功色に */
+      border-radius: 16px;
+      padding: 16px;
       font-size: 12px;
-      line-height: 1.6;
+      line-height: 1.7;
       overflow: auto;
       white-space: pre-wrap;
       word-break: break-word;
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      margin-top: 12px;
+      margin-top: 16px;
+      border: 1px solid var(--line);
     }
 
     .loading,
     .empty-state {
       text-align: center;
       color: var(--text-sub);
-      margin-top: 40px;
+      grid-column: 1 / -1; /* グリッド全体に広げる */
+      margin-top: 60px;
       font-weight: 600;
-      padding: 18px;
+      padding: 24px;
     }
 
     .empty-state strong {
       display: block;
       color: var(--text-main);
-      margin-bottom: 6px;
-      font-size: 16px;
+      margin-bottom: 10px;
+      font-size: 18px;
     }
 
     .retry-btn {
-      margin-top: 12px;
+      margin-top: 16px;
       background: var(--surface-1);
       border: 1px solid var(--line);
       color: var(--text-main);
-      border-radius: 10px;
-      padding: 10px 16px;
+      border-radius: 12px;
+      padding: 12px 20px;
       font-weight: 700;
       cursor: pointer;
+      transition: background 0.2s;
     }
+    .retry-btn:hover { background: var(--surface-2); }
 
     .toast {
       position: fixed;
-      bottom: calc(24px + env(safe-area-inset-bottom));
+      bottom: calc(30px + env(safe-area-inset-bottom)); /* 少し上に */
       left: 50%;
       transform: translateX(-50%);
-      background: #1c1c1e;
+      background: #000;
       color: #fff;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-size: 15px;
       font-weight: 600;
       opacity: 0;
       transition: opacity 0.3s;
       pointer-events: none;
       z-index: 999;
-      max-width: calc(100vw - 30px);
+      max-width: calc(100vw - 40px);
       white-space: normal;
       text-align: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .toast.show {
@@ -505,10 +568,10 @@
     <div id="detailPage">
       <div class="header-row">
         <button class="back-btn" onclick="backToList()" type="button">← 戻る</button>
-        <button id="saveBtn" class="add-btn" style="display:block; height:40px;" onclick="saveRecipe()" type="button">保存</button>
+        <button id="saveBtn" class="add-btn" style="display:block; height:44px;" onclick="saveRecipe()" type="button">保存</button>
       </div>
 
-      <div id="detailTitle" class="section-title" style="margin-bottom:16px;"></div>
+      <div id="detailTitle" class="section-title" style="margin-bottom:20px;"></div>
 
       <div class="detail-section">
         <div class="detail-label">カテゴリ</div>
@@ -799,7 +862,7 @@
                   ? `<img class="recipe-thumb" src="${escapeHtml(item[3])}" alt="${escapeHtml(item[0])}">`
                   : `<div class="recipe-thumb recipe-thumb-placeholder">📷</div>`
               }
-              <div class="recipe-text">
+              <div class="recipe-text-wrap">
                 <span class="tag-badge">${escapeHtml(item[2] || "未設定")}</span>
                 <div class="recipe-name" onclick="showDetail(${index})">${escapeHtml(item[0] || "")}</div>
                 <div class="recipe-sub">${safeText(item[1]) ? "メモあり" : "メモ未入力"}</div>
@@ -1045,7 +1108,7 @@
       const label = document.getElementById("imageUploadLabel");
       label.style.opacity = flag ? "0.7" : "1";
       label.style.pointerEvents = flag ? "none" : "auto";
-      label.childNodes[0].nodeValue = flag ? "アップロード中..." : "画像を選択";
+      label.childNodes[0].nodeValue = flag ? "保存中..." : "画像を選択"; /* テキスト変更 */
     }
 
     async function handleImageSelected(e) {
