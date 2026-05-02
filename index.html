@@ -42,19 +42,38 @@
       margin: 0 auto;
     }
 
-    /* Header */
+    /* Logo & Header */
     .header-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin: 16px 0 16px;
+      margin: 16px 0 24px;
       gap: 12px;
     }
 
+    /* 画像のリングをイメージしたロゴ */
+    .app-logo {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .app-logo::after {
+      content: "";
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+    }
+
     .section-title {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 900;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.05em;
       color: var(--text-main);
     }
 
@@ -113,7 +132,7 @@
       margin-top: 8px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 10px;
     }
 
     .recipe-item-wrapper {
@@ -125,15 +144,11 @@
 
     .delete-action {
       position: absolute;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
       color: #fff;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       cursor: pointer;
     }
@@ -187,9 +202,9 @@
     }
 
     .recipe-name {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      line-height: 1.3;
+      line-height: 1.4;
       cursor: pointer;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -223,7 +238,7 @@
     .category-select {
       width: 100%;
       background: var(--surface-2);
-      border: 1px solid transparent;
+      border: 1px solid var(--line);
       padding: 12px;
       border-radius: 10px;
       font-weight: 700;
@@ -236,6 +251,7 @@
       border-radius: 16px;
       padding: 14px;
       box-shadow: var(--shadow);
+      text-align: center;
     }
 
     .image-preview-wrap {
@@ -252,10 +268,10 @@
 
     .image-preview { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-    .image-actions { display: flex; gap: 8px; }
+    .image-actions { display: flex; flex-direction: column; gap: 8px; align-items: center; }
 
     .image-upload-label, .image-remove-btn {
-      flex: 1;
+      width: 100%;
       height: 40px;
       border-radius: 10px;
       font-weight: 800;
@@ -268,7 +284,7 @@
     }
 
     .image-upload-label { background: var(--accent); color: #fff; }
-    .image-remove-btn { background: var(--surface-2); color: var(--text-main); }
+    .image-remove-btn { background: var(--surface-2); color: var(--text-main); margin-top: 8px; }
 
     .editor-textarea {
       width: 100%;
@@ -300,7 +316,16 @@
     }
     .toast.show { opacity: 1; }
 
-    .loading { text-align: center; padding: 60px; color: var(--text-sub); font-size: 14px; }
+    /* Loading Fix - Ensure it doesn't wrap weirdly */
+    .loading { 
+      width: 100%;
+      text-align: center; 
+      padding: 60px 0; 
+      color: var(--text-sub); 
+      font-size: 14px; 
+      letter-spacing: 0.1em;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -308,6 +333,7 @@
     <!-- Home Page -->
     <div id="mainPage">
       <div class="header-row">
+        <div class="app-logo"></div>
         <div class="section-title">RECIPE LOG</div>
       </div>
       <div class="combo-area">
@@ -316,14 +342,16 @@
           <button id="addBtn" class="add-btn" onclick="addRecipe()">追加</button>
         </div>
       </div>
-      <div id="recipeList" class="recipe-list"></div>
+      <div id="recipeListContainer">
+        <!-- JSでここにloadingかrecipe-listを流し込む -->
+      </div>
     </div>
 
     <!-- Detail Page -->
     <div id="detailPage">
       <div class="header-row">
         <button class="back-btn" onclick="backToList()">← 戻る</button>
-        <button id="saveBtn" class="add-btn" style="display:block; height:36px;" onclick="saveRecipe()">保存</button>
+        <button id="saveBtn" class="add-btn" style="display:block; height:36px; margin-left:auto;" onclick="saveRecipe()">保存</button>
       </div>
       <div id="detailTitle" class="section-title" style="margin-bottom:16px;"></div>
       
@@ -376,27 +404,29 @@
     }
 
     async function fetchRecipes() {
-      const list = document.getElementById("recipeList");
-      list.innerHTML = '<div class="loading">レシピを取得中...</div>';
+      const container = document.getElementById("recipeListContainer");
+      container.innerHTML = '<div class="loading">RECIPES LOADING...</div>';
       try {
         const res = await fetch(GAS_URL, { cache: "no-store" });
         recipes = await res.json();
         render();
-      } catch (e) { showToast("レシピの読み込みに失敗しました"); }
+      } catch (e) { showToast("読み込み失敗"); }
     }
 
     function render() {
-      const list = document.getElementById("recipeList");
+      const container = document.getElementById("recipeListContainer");
       const query = document.getElementById("comboInput").value.toLowerCase();
       const filtered = recipes.map((r, i) => ({r, i})).filter(x => x.r[0].toLowerCase().includes(query));
+
+      container.innerHTML = `<div id="recipeList" class="recipe-list"></div>`;
+      const list = document.getElementById("recipeList");
 
       list.innerHTML = filtered.map(x => `
         <div class="recipe-item-wrapper">
           <div class="delete-action" onclick="deleteRecipe(${x.i})">削除</div>
           <div class="recipe-card" ontouchstart="ts(event)" ontouchmove="tm(event)" ontouchend="te(event)">
-            ${x.r[3] ? `<img class="recipe-thumb" src="${x.r[3]}">` : `<div class="recipe-thumb recipe-thumb-placeholder">📷</div>`}
+            ${x.r[3] ? `<img class="recipe-thumb" src="${x.r[3]}">` : `<div class="recipe-thumb" style="display:flex;align-items:center;justify-content:center;background:#fafafa;font-size:20px;">📷</div>`}
             <div class="recipe-text-wrap">
-              <span class="tag-badge">${x.r[2] || '未設定'}</span>
               <div class="recipe-name" onclick="showDetail(${x.i})">${x.r[0]}</div>
             </div>
           </div>
@@ -446,7 +476,7 @@
           category: document.getElementById("categoryEditor").value
         });
         showToast("保存しました ✓");
-      } catch (e) { showToast("保存に失敗しました"); }
+      } catch (e) { showToast("失敗"); }
       btn.disabled = false;
     }
 
@@ -457,8 +487,8 @@
         await apiRequest({ method: "add", name: name, recipe: "", category: "未設定" });
         document.getElementById("comboInput").value = "";
         fetchRecipes();
-        showToast("レシピを追加しました");
-      } catch (e) { showToast("追加に失敗しました"); }
+        showToast("追加しました");
+      } catch (e) { showToast("失敗"); }
     }
 
     async function deleteRecipe(i) {
@@ -467,7 +497,7 @@
         await apiRequest({ method: "delete", name: recipes[i][0] });
         fetchRecipes();
         showToast("削除しました");
-      } catch (e) { showToast("削除に失敗しました"); }
+      } catch (e) { showToast("失敗"); }
     }
 
     async function handleImage(e) {
@@ -484,9 +514,9 @@
             fileName: file.name,
             mimeType: file.type
           });
-          showToast("画像を保存しました ✓");
+          showToast("保存完了 ✓");
           showDetail(currentEditingIndex);
-        } catch (e) { showToast("画像の保存に失敗しました"); }
+        } catch (e) { showToast("失敗"); }
       };
       reader.readAsDataURL(file);
     }
@@ -497,7 +527,7 @@
         await apiRequest({ method: "removeImage", name: recipes[currentEditingIndex][0] });
         showToast("画像を削除しました");
         showDetail(currentEditingIndex);
-      } catch (e) { showToast("削除に失敗しました"); }
+      } catch (e) { showToast("失敗"); }
     }
 
     function showToast(m) {
