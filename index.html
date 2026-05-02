@@ -9,89 +9,79 @@
     :root {
       --bg: #ffffff; 
       --surface-1: #ffffff;
-      --surface-2: #f2f2f7; 
-      --surface-3: #e5e5ea;
+      --surface-2: #f8f8f9; 
       --text-main: #1c1c1e;
       --text-sub: #8e8e93;
-      --accent: #fca311; 
-      --danger: #ff3b30;
-      --success: #34c759;
-      --line: rgba(0, 0, 0, 0.08);
-      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-      --font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "メイリオ", sans-serif;
+      --accent: #fca311; /* オレンジ */
+      --line: rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--text-main);
-      font-family: var(--font-family);
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       padding: calc(16px + env(safe-area-inset-top)) 12px 100px;
     }
 
-    .container {
-      max-width: 430px;
-      margin: 0 auto;
-    }
+    .container { max-width: 430px; margin: 0 auto; }
 
-    /* Header */
+    /* Logo & Header */
     .header-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin: 16px 0 16px;
+      margin: 16px 0 24px;
       gap: 12px;
     }
 
-    .section-title {
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: 0.03em;
-      color: var(--text-main);
+    /* 画像のリングをイメージしたロゴ */
+    .app-logo {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .app-logo::after {
+      content: "";
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
     }
 
-    /* Search & Add Area */
+    .section-title {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+    }
+
+    /* Search Input */
     .combo-area {
       position: sticky;
       top: calc(8px + env(safe-area-inset-top));
       z-index: 100;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 8px 0 12px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 8px 0 16px;
     }
 
-    .input-group {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .input-group { display: flex; gap: 8px; align-items: center; }
 
     .combo-input {
       flex: 1;
-      min-width: 0;
       background: var(--surface-2);
-      border: 1px solid transparent;
+      border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 12px 14px;
+      padding: 12px 16px;
       font-size: 15px;
       outline: none;
-      color: var(--text-main);
-      transition: all 0.2s;
-    }
-
-    .combo-input:focus {
-      background: var(--surface-1);
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(252, 163, 17, 0.1);
     }
 
     .add-btn {
@@ -102,212 +92,133 @@
       border-radius: 12px;
       padding: 0 16px;
       height: 44px;
-      cursor: pointer;
       display: none;
-      box-shadow: var(--shadow);
-      font-size: 14px;
     }
 
-    /* Grid List (3 Columns) */
+    /* 3-Column Grid */
     .recipe-list {
-      margin-top: 8px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 10px;
     }
 
     .recipe-item-wrapper {
       position: relative;
-      background-color: var(--danger);
-      border-radius: 14px;
+      background: #ff3b30;
+      border-radius: 12px;
       overflow: hidden;
-    }
-
-    .delete-action {
-      position: absolute;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 800;
-      cursor: pointer;
     }
 
     .recipe-card {
       position: relative;
       z-index: 2;
       background: var(--surface-1);
-      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-      box-shadow: var(--shadow);
       border: 1px solid var(--line);
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     .recipe-thumb {
       width: 100%;
-      aspect-ratio: 1 / 1;
+      aspect-ratio: 1/1;
       object-fit: cover;
       background: var(--surface-2);
-      border-bottom: 1px solid var(--line);
     }
 
-    .recipe-thumb-placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      background: #fafafa;
-    }
-
-    .recipe-text-wrap {
-      padding: 8px;
-      flex: 1;
-    }
-
-    .tag-badge {
-      display: inline-block;
-      font-size: 8px;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: var(--surface-2);
-      color: var(--text-sub);
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      max-width: 100%;
-      text-overflow: ellipsis;
-    }
+    .recipe-text-wrap { padding: 8px; }
 
     .recipe-name {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      line-height: 1.3;
-      cursor: pointer;
+      line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
+    /* Loading Fix */
+    .loading {
+      grid-column: 1 / -1; /* 横いっぱいに広げる */
+      text-align: center;
+      padding: 40px;
+      color: var(--text-sub);
+      font-size: 14px;
+      letter-spacing: 0.1em;
+    }
+
     /* Detail Page */
     #detailPage { display: none; }
-
     .back-btn {
       background: var(--surface-2);
       border: none;
-      padding: 8px 14px;
-      border-radius: 10px;
+      padding: 8px 16px;
+      border-radius: 8px;
       font-weight: 700;
-      color: var(--text-main);
-      font-size: 14px;
-    }
-
-    .detail-section { margin-bottom: 20px; }
-
-    .detail-label {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--text-sub);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-
-    .category-select {
-      width: 100%;
-      background: var(--surface-2);
-      border: 1px solid transparent;
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: 700;
-      outline: none;
     }
 
     .image-panel {
-      background: var(--surface-1);
-      border: 1px solid var(--line);
+      background: var(--surface-2);
       border-radius: 16px;
-      padding: 14px;
-      box-shadow: var(--shadow);
+      padding: 16px;
+      text-align: center;
     }
 
     .image-preview-wrap {
       width: 100%;
-      aspect-ratio: 16 / 10;
-      background: #f9f9fb;
-      border-radius: 10px;
+      aspect-ratio: 16/10;
+      background: #fff;
+      border-radius: 12px;
       overflow: hidden;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 12px;
     }
 
-    .image-preview { width: 100%; height: 100%; object-fit: cover; display: none; }
-
-    .image-actions { display: flex; gap: 8px; }
-
-    .image-upload-label, .image-remove-btn {
-      flex: 1;
-      height: 40px;
+    .image-upload-label {
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 20px;
       border-radius: 10px;
       font-weight: 800;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
       cursor: pointer;
-      border: none;
     }
-
-    .image-upload-label { background: var(--accent); color: #fff; }
-    .image-remove-btn { background: var(--surface-2); color: var(--text-main); }
 
     .editor-textarea {
       width: 100%;
-      min-height: 250px;
+      min-height: 300px;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 14px;
-      font-size: 15px;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
       line-height: 1.6;
       outline: none;
-      box-shadow: var(--shadow);
     }
 
-    /* Toast Notification */
     .toast {
       position: fixed;
-      bottom: 40px;
+      bottom: 50px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.8);
       color: #fff;
       padding: 10px 20px;
       border-radius: 20px;
       font-size: 13px;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: 0.3s;
       z-index: 1000;
-      pointer-events: none;
     }
     .toast.show { opacity: 1; }
-
-    .loading { text-align: center; padding: 60px; color: var(--text-sub); font-size: 14px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Home Page -->
     <div id="mainPage">
       <div class="header-row">
+        <div class="app-logo"></div>
         <div class="section-title">RECIPE LOG</div>
       </div>
       <div class="combo-area">
@@ -319,48 +230,25 @@
       <div id="recipeList" class="recipe-list"></div>
     </div>
 
-    <!-- Detail Page -->
     <div id="detailPage">
       <div class="header-row">
         <button class="back-btn" onclick="backToList()">← 戻る</button>
-        <button id="saveBtn" class="add-btn" style="display:block; height:36px;" onclick="saveRecipe()">保存</button>
+        <button id="saveBtn" class="add-btn" style="display:block; height:36px; margin-left:auto;" onclick="saveRecipe()">保存</button>
       </div>
       <div id="detailTitle" class="section-title" style="margin-bottom:16px;"></div>
-      
+      <div class="detail-section"><select id="categoryEditor" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--line);"><option value="未設定">カテゴリを選択</option><option value="肉料理">肉料理</option><option value="魚料理">魚料理</option><option value="野菜・サラダ">野菜・サラダ</option><option value="麺・ごはん">麺・ごはん</option><option value="デザート">デザート</option><option value="その他">その他</option></select></div>
       <div class="detail-section">
-        <div class="detail-label">カテゴリ</div>
-        <select id="categoryEditor" class="category-select">
-          <option value="未設定">カテゴリを選択</option>
-          <option value="肉料理">肉料理</option>
-          <option value="魚料理">魚料理</option>
-          <option value="野菜・サラダ">野菜・サラダ</option>
-          <option value="麺・ごはん">麺・ごはん</option>
-          <option value="デザート">デザート</option>
-          <option value="その他">その他</option>
-        </select>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-label">写真</div>
         <div class="image-panel">
           <div class="image-preview-wrap">
-            <img id="recipeImagePreview" class="image-preview" />
-            <div id="imageEmptyState">📷</div>
+            <img id="recipeImagePreview" style="width:100%; height:100%; object-fit:cover; display:none;" />
+            <div id="imageEmptyState" style="font-size:30px;">📷</div>
           </div>
-          <div class="image-actions">
-            <label class="image-upload-label">画像を選択<input id="imageInput" type="file" accept="image/*" style="display:none;" /></label>
-            <button class="image-remove-btn" onclick="removeImage()">削除</button>
-          </div>
+          <label class="image-upload-label">写真を選択<input id="imageInput" type="file" accept="image/*" style="display:none;" /></label>
         </div>
       </div>
-
-      <div class="detail-section">
-        <div class="detail-label">作り方・メモ</div>
-        <textarea id="recipeEditor" class="editor-textarea" placeholder="材料や手順を入力..."></textarea>
-      </div>
+      <textarea id="recipeEditor" class="editor-textarea" placeholder="レシピを入力..."></textarea>
     </div>
   </div>
-
   <div id="toast" class="toast"></div>
 
   <script>
@@ -377,12 +265,12 @@
 
     async function fetchRecipes() {
       const list = document.getElementById("recipeList");
-      list.innerHTML = '<div class="loading">レシピを取得中...</div>';
+      list.innerHTML = '<div class="loading">RECIPES LOADING...</div>';
       try {
         const res = await fetch(GAS_URL, { cache: "no-store" });
         recipes = await res.json();
         render();
-      } catch (e) { showToast("レシピの読み込みに失敗しました"); }
+      } catch (e) { showToast("読み込み失敗"); }
     }
 
     function render() {
@@ -392,11 +280,10 @@
 
       list.innerHTML = filtered.map(x => `
         <div class="recipe-item-wrapper">
-          <div class="delete-action" onclick="deleteRecipe(${x.i})">削除</div>
+          <div style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:#fff; font-size:10px; font-weight:800;" onclick="deleteRecipe(${x.i})">削除</div>
           <div class="recipe-card" ontouchstart="ts(event)" ontouchmove="tm(event)" ontouchend="te(event)">
-            ${x.r[3] ? `<img class="recipe-thumb" src="${x.r[3]}">` : `<div class="recipe-thumb recipe-thumb-placeholder">📷</div>`}
+            ${x.r[3] ? `<img class="recipe-thumb" src="${x.r[3]}">` : `<div class="recipe-thumb" style="display:flex;align-items:center;justify-content:center;background:#fafafa;font-size:20px;">📷</div>`}
             <div class="recipe-text-wrap">
-              <span class="tag-badge">${x.r[2] || '未設定'}</span>
               <div class="recipe-name" onclick="showDetail(${x.i})">${x.r[0]}</div>
             </div>
           </div>
@@ -446,7 +333,7 @@
           category: document.getElementById("categoryEditor").value
         });
         showToast("保存しました ✓");
-      } catch (e) { showToast("保存に失敗しました"); }
+      } catch (e) { showToast("失敗"); }
       btn.disabled = false;
     }
 
@@ -457,53 +344,38 @@
         await apiRequest({ method: "add", name: name, recipe: "", category: "未設定" });
         document.getElementById("comboInput").value = "";
         fetchRecipes();
-        showToast("レシピを追加しました");
-      } catch (e) { showToast("追加に失敗しました"); }
+        showToast("追加しました");
+      } catch (e) { showToast("失敗"); }
     }
 
     async function deleteRecipe(i) {
-      if (!confirm(`「${recipes[i][0]}」を削除しますか？`)) return;
+      if (!confirm("削除しますか？")) return;
       try {
         await apiRequest({ method: "delete", name: recipes[i][0] });
         fetchRecipes();
         showToast("削除しました");
-      } catch (e) { showToast("削除に失敗しました"); }
+      } catch (e) { showToast("失敗"); }
     }
 
     async function handleImage(e) {
       const file = e.target.files[0]; if (!file) return;
-      showToast("画像をアップロード中...");
+      showToast("アップロード中...");
       const reader = new FileReader();
       reader.onload = async (ev) => {
         try {
           const base64 = ev.target.result.split(",")[1];
-          await apiRequest({
-            method: "uploadImage",
-            name: recipes[currentEditingIndex][0],
-            base64Data: base64,
-            fileName: file.name,
-            mimeType: file.type
-          });
-          showToast("画像を保存しました ✓");
+          await apiRequest({ method: "uploadImage", name: recipes[currentEditingIndex][0], base64Data: base64, fileName: file.name, mimeType: file.type });
+          showToast("保存完了 ✓");
           showDetail(currentEditingIndex);
-        } catch (e) { showToast("画像の保存に失敗しました"); }
+        } catch (e) { showToast("失敗"); }
       };
       reader.readAsDataURL(file);
-    }
-
-    async function removeImage() {
-      if (!confirm("画像を削除しますか？")) return;
-      try {
-        await apiRequest({ method: "removeImage", name: recipes[currentEditingIndex][0] });
-        showToast("画像を削除しました");
-        showDetail(currentEditingIndex);
-      } catch (e) { showToast("削除に失敗しました"); }
     }
 
     function showToast(m) {
       const t = document.getElementById("toast");
       t.innerText = m; t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2800);
+      setTimeout(() => t.classList.remove("show"), 2500);
     }
 
     document.getElementById("comboInput").addEventListener("input", () => {
